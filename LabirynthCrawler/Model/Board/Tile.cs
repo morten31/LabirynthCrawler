@@ -7,6 +7,19 @@ public class Tile
     private bool _isWall;
     private List<IPickable> _items = new();
 
+    public Tile(string type)
+    {
+        switch (type)
+        {
+            case "wall":
+                _isWall = true;
+                break;
+            default:
+                _isWall = false;
+                break;
+        }
+    }
+
     public string GetSymbol()
     {
         if (_isWall)

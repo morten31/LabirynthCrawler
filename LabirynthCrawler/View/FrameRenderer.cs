@@ -14,14 +14,13 @@ public class FrameRenderer
     private const int MapY = 1; 
     
     private const int RightPanelX = 68;
-    private const int BottomPanelY = 24;
+    private const int BottomPanelY = 25;
+    private const int ActionsStartY = 16; // pod ekwipunkiem (3 equipped + 1 blank + 1 header + ~10 items)
 
     public void Initialize()
     {
         Console.Clear();
         Console.CursorVisible = false;
-    
-        DrawActions();
     }
 
     public void Render(GameModel model)
@@ -32,6 +31,7 @@ public class FrameRenderer
         DrawMap(model);
         DrawInventory(player);
         DrawInfoBar(model);
+        DrawActions(model);
     
         Console.SetCursorPosition(0, 0);
     }
@@ -63,7 +63,7 @@ public class FrameRenderer
 
         WriteAt("+" + new string('-', Map.Width) + "+", MapX - 1, MapY - 1);
 
-        for (int y = 0; y < Map.Heigth; y++)
+        for (int y = 0; y < Map.Height; y++)
         {
             string rowText = string.Empty;
             for (int x = 0; x < Map.Width; x++)
@@ -75,7 +75,7 @@ public class FrameRenderer
             WriteAt($"|{rowText}|", MapX - 1, MapY + y);
         }
 
-        WriteAt("+" + new string('-', Map.Width) + "+", MapX - 1, MapY + Map.Heigth);
+        WriteAt("+" + new string('-', Map.Width) + "+", MapX - 1, MapY + Map.Height);
 
         Console.SetCursorPosition(MapX + player.GetX(), MapY + player.GetY());
         Console.ForegroundColor = ConsoleColor.Magenta;
@@ -133,12 +133,14 @@ public class FrameRenderer
         WriteAt(infoText.PadRight(100), LeftPanelX, infoY);
     }
 
-    private void DrawActions()
+    private void DrawActions(GameModel model)
     {
-        int y = BottomPanelY;
-        WriteAt("=== AVAILABLE ACTIONS ===", LeftPanelX, y++);
-        WriteAt("Move: W/A/S/D  |  Pick up: E        |  Quit: ESC".PadRight(100), LeftPanelX, y++);
-        WriteAt("Drop: Q + idx  |  Equip Left: K[1-9] |  Equip Right: L[1-9]".PadRight(100), LeftPanelX, y++);
+        List<string> messages = model.GetInstructionBuilder().GetCompleteMessages();
+
+        int y = ActionsStartY;
+        WriteAt("=== ACTIONS ===".PadRight(30), RightPanelX, y++);
+        foreach (string msg in messages)
+            WriteAt(msg.TrimEnd(',', ' ').PadRight(30), RightPanelX, y++);
     }
 
     private void WriteAt(string text, int x, int y)

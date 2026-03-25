@@ -1,18 +1,19 @@
 ﻿using LabirynthCrawler.Model.Items;
+using LabirynthCrawler.Model.MapGeneration;
 
 namespace LabirynthCrawler.Model.Board;
 
 public class Map
 {
-    public const int Width = 40;
-    public const int Heigth = 20;
-    private readonly Tile[,] _map = new Tile[Heigth, Width];
+    public const int Width = 41;
+    public const int Height = 21;
+    private readonly Tile[,] _map = new Tile[Height, Width];
 
-    private void AddWall(int x, int y)
-    {
-        if(_map[y,x].ItemCount() == 0)
-            _map[y, x].MakeWall();
-    }
+    public void SetTileEmpty(int x, int y) => _map[y, x] = new Tile("empty");
+    
+    
+    public void SetTileWall(int x, int y) => _map[y, x] = new Tile("wall");
+    
     public void AddItem(int x, int y, IPickable item)
     {
         if (!_map[y, x].IsWall())
@@ -20,42 +21,12 @@ public class Map
             _map[y, x].AddItem(item);
         }
     }
-
-    
-    public void Initialize()
-    {
-        for (int y = 0; y < Heigth; y++)
-        {
-            for (int x = 0; x < Width; x++)
-            {
-                _map[y, x] = new Tile();
-            }
-        }
-        
-        AddItem(10, 15, new TwoHandedWeapons("Excalibur", 20));
-        AddItem(5, 10, new Weapon("Dagger", 5));
-        AddItem(10, 10, new TwoHandedWeapons("Longsword", 10));
-
-        AddItem(6, 11, new Weapon("Dagger", 5));
-
-        
-        AddItem(20, 15, new QuestItem("Dragon's Egg"));
-        AddItem(21, 16, new QuestItem("Dungeon Key"));
-
-        AddItem(10, 9, new Coin(10));
-        AddItem(10, 9, new Gold(2));
-
-        AddWall(8, 7);
-        AddWall(9, 7);
-        AddWall(10, 7);
-        AddWall(11, 7);
-    }
     
     public Tile GetTile(int x, int y) => _map[y, x];
 
     public bool IsWithinBounds(int x, int y)
     {
-        if (x < 0 || y < 0 || x >= Width || y >= Heigth)
+        if (x < 0 || y < 0 || x >= Width || y >= Height)
             return false;
 
         return true;

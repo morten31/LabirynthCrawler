@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Labirynth Crawler", "Labirynth Crawler\Labirynth Crawler.csproj", "{E347534A-EAB2-41F8-8157-49927D5CD75D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LabirynthCrawler", "LabirynthCrawler\LabirynthCrawler.csproj", "{E347534A-EAB2-41F8-8157-49927D5CD75D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

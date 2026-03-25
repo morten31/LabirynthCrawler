@@ -8,9 +8,8 @@ public class MainHandler
 {
     private BaseHandler _start = new StartHandler();
     private bool _shouldRun = true;
-    public void Initialize(GameModel model)
+    public void Initialize()
     {
-        model.InitializeGame();
         InitializeInputChain(_start);
     }
     
