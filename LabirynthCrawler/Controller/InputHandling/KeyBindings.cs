@@ -10,6 +10,9 @@ public enum GameAction
     Drop,
     EquipLeft,
     EquipRight,
+    AttackNormal,
+    AttackStealth,
+    AttackMagic,    
     Quit
 }
 
@@ -28,10 +31,13 @@ public static class KeyBindings
         { GameAction.EquipLeft, (ConsoleKey.K, "[1-9] Equip Left") },
         { GameAction.EquipRight,(ConsoleKey.L, "[1-9] Equip Right") },
         
+        { GameAction.AttackNormal,  (ConsoleKey.B, "Normal Attack") },
+        { GameAction.AttackStealth, (ConsoleKey.N, "Stealth Attack") },
+        { GameAction.AttackMagic,   (ConsoleKey.M, "Magic Attack") },
+        
         { GameAction.Quit,      (ConsoleKey.Escape, "Quit Game") }
     };
-
-    // Metoda dla Handlerów (musimy zaktualizować pobieranie klawisza z Tupli - mapping.Key)
+    
     public static bool Matches(ConsoleKeyInfo keyInfo, GameAction action)
     {
         return Bindings.TryGetValue(action, out var mapping) && keyInfo.Key == mapping.Key;

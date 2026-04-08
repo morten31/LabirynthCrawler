@@ -7,37 +7,25 @@ namespace LabirynthCrawler.Model.Combat;
 
 public class CombatSystem
 {
-    public bool ExecuteTurn(Player player, IEnemy enemy, IAttackVisitor attackVisitor)
+    private readonly Player _player;
+    private readonly IEnemy _enemy;
+    private readonly CombatManager _combatManager = new CombatManager();
+
+    public CombatSystem(Player player, IEnemy enemy)
     {
-        var activeItems = player.GetInventory().GetEquippedItems();
-        
-        int playerTotalDamage = 0;
-        int playerTotalDefense = 0;
+        _player = player;
+       _enemy = enemy;
+    }
 
-        if (activeItems.Count == 0)
+    public CombatResult AttackEnemy(int attackType)
+    {
+        IAttackVisitor visitor = attackType switch
         {
-            var (dmg, def) = attackVisitor.Visit((IItem)null!);
-            playerTotalDamage = dmg;
-            playerTotalDefense = def;
-        }
-        else
-        {
-            foreach (var item in activeItems)
-            {
-                var stats = item.Accept(attackVisitor);
-                playerTotalDamage += stats.Damage;
-                playerTotalDefense = Math.Max(playerTotalDefense, stats.Defense);
-            }
-        }
+            1 => new NormalAttackVisitor(_player),
+            2 => new StealthAttackVisitor(_player),
+            _ => new MagicAttackVisitor(_player)
+        };
 
-        enemy.DecreaseHealth(playerTotalDamage);
-
-        if (enemy.GetHealth() > 0)
-        {
-            int enemyDamage = Math.Max(0, enemy.GetDamage() - playerTotalDefense);
-            player.GetAttributes().Health -= enemyDamage;
-        }
-
-        return player.GetAttributes().Health <= 0;
+        return _combatManager.ResolveCombat(_player, _enemy, visitor);
     }
 }

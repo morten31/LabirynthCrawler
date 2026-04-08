@@ -2,7 +2,7 @@
 
 namespace LabirynthCrawler.Controller.InputHandling.Handlers;
 
-public class StartHandler : BaseHandler
+public class StartEndHandler : BaseHandler
 {
     public override bool Handle(ConsoleKeyInfo key, GameModel model)
     {
@@ -10,6 +10,9 @@ public class StartHandler : BaseHandler
         {
             return false;
         }
+
+        if (model.IsGameOver) return true;
+        
         return base.Handle(key, model);
     }
 }

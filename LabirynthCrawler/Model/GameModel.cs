@@ -1,4 +1,6 @@
 ﻿using LabirynthCrawler.Model.Board;
+using LabirynthCrawler.Model.Combat;
+using LabirynthCrawler.Model.Enemies;
 using LabirynthCrawler.Model.Items;
 using LabirynthCrawler.Model.MapGeneration;
 using LabirynthCrawler.Model.PlayerModel;
@@ -16,6 +18,9 @@ public class GameModel
     InstructionBuilder _instructionBuilder;
     public InstructionBuilder GetInstructionBuilder() => _instructionBuilder;
 
+    public string LastActionLog { get; set; } = "";
+    public bool IsGameOver { get; private set; } = false;
+    
     public void InitializeGame(int startX, int startY)
     {
         _player = new Player((startX, startY));
@@ -80,5 +85,41 @@ public class GameModel
                 
         inventory.EquipItem(hand, idx);
         return true;
+    }
+
+    public void PerformAttack(int attackType)
+    {
+        if (IsGameOver) return;
+
+        Tile currentTile = GetMap().GetTile(_player.GetX(), _player.GetY());
+        List<IEnemy> enemies = currentTile.GetEnemies();
+
+        if (enemies.Count == 0)
+        {
+            LastActionLog = "There are no enemies to attack!";
+            return;
+        }
+
+        IEnemy enemy = enemies[0];
+        CombatSystem combat = new CombatSystem(_player, enemy);
+        CombatResult result = combat.AttackEnemy(attackType);
+
+        LastActionLog = $"[COMBAT] You dealt {result.DamageDealt} dmg to {enemy.ToString()}. ";
+
+        if (result.IsEnemyDead)
+        {
+            LastActionLog += $"{enemy.ToString()} was killed! ";
+            currentTile.RemoveDeadEnemies();
+        }
+        else
+        {
+            LastActionLog += $"{enemy.ToString()} hit back for {result.DamageReceived} dmg. ";
+        }
+
+        if (result.IsPlayerDead)
+        {
+            LastActionLog += "YOU DIED! Game Over. Press ESC to quit.";
+            IsGameOver = true;
+        }
     }
 }

@@ -31,7 +31,16 @@ public class FrameRenderer
         DrawInventory(player);
         DrawInfoBar(model);
         DrawActions(model);
-    
+        if (model.IsGameOver)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            WriteAt(" ============================ ", MapX + 5, MapY + Map.Height / 2 - 1);
+            WriteAt(" =        YOU DIED!         = ", MapX + 5, MapY + Map.Height / 2);
+            WriteAt(" =   Press ESC to leave.    = ", MapX + 5, MapY + Map.Height / 2 + 1);
+            WriteAt(" ============================ ", MapX + 5, MapY + Map.Height / 2 + 2);
+            Console.ResetColor();
+        }
+
         Console.SetCursorPosition(0, 0);
     }
 
@@ -119,9 +128,19 @@ public class FrameRenderer
         int infoY = BottomPanelY - 2;
         string infoText = ">>> INFO: ";
 
-        if (tile.GetTileItems.Count > 0)
+        if (!string.IsNullOrEmpty(model.LastActionLog))
         {
-            string itemName = tile.GetTileItems[0].ToString() ?? "Unknown";
+            infoText += model.LastActionLog;
+            model.LastActionLog = "";
+        }
+        else if (tile.GetEnemies().Count > 0)
+        {
+            string enemyName = tile.GetEnemies()[0].ToString();
+            infoText += $"You see a {enemyName} here!";
+        }
+        else if (tile.GetTileItems.Count > 0)
+        {
+            string itemName = tile.GetTileItems[0].ToString();
             infoText += $"You see '{itemName}' on the ground.";
         }
         else
@@ -129,7 +148,21 @@ public class FrameRenderer
             infoText += "There is nothing interesting here.";
         }
 
-        WriteAt(infoText.PadRight(100), LeftPanelX, infoY);
+        WriteAt(new string(' ', 110), LeftPanelX, infoY);
+        WriteAt(new string(' ', 110), LeftPanelX, infoY + 1);
+
+        if (infoText.Length > 60)
+        {
+            int splitIndex = infoText.LastIndexOf(' ', 60);
+            if (splitIndex == -1) splitIndex = 60;
+
+            WriteAt(infoText.Substring(0, splitIndex), LeftPanelX, infoY);
+            WriteAt(infoText.Substring(splitIndex).TrimStart(), LeftPanelX, infoY + 1);
+        }
+        else
+        {
+            WriteAt(infoText, LeftPanelX, infoY);
+        }
     }
 
     private void DrawActions(GameModel model)

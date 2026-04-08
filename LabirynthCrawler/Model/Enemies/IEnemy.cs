@@ -5,7 +5,7 @@ public interface IEnemy
     public int GetX();
     public int GetY();
     public string GetSymbol();
-    public string? ToString();
+    public string ToString();
     public int GetDamage();
     public int GetHealth();
     public int GetDefence();

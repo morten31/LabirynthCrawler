@@ -7,7 +7,7 @@ public class InstructionBuilder : IMapBuilder
     private bool _isMovementMessage;
     private bool _isItemPresentMessage;
     private bool _isQuitMessage;
-    private bool _isContinueMessage;
+    private bool _isCombatMessage;
 
     public List<string> GetCompleteMessages()
     {
@@ -34,7 +34,18 @@ public class InstructionBuilder : IMapBuilder
             finalMessages.Add($"({equipLeft.Key}) {equipLeft.Description}");
             finalMessages.Add($"({equipRight.Key}) {equipRight.Description}");
         }
+        
+        if (_isCombatMessage)
+        {
+            var atkNorm = KeyBindings.Bindings[GameAction.AttackNormal];
+            var atkStealth = KeyBindings.Bindings[GameAction.AttackStealth];
+            var atkMagic = KeyBindings.Bindings[GameAction.AttackMagic];
 
+            finalMessages.Add($"({atkNorm.Key}) {atkNorm.Description}");
+            finalMessages.Add($"({atkStealth.Key}) {atkStealth.Description}");
+            finalMessages.Add($"({atkMagic.Key}) {atkMagic.Description}");
+        }
+        
         if (_isQuitMessage)
         {
             var quit = KeyBindings.Bindings[GameAction.Quit];
@@ -43,16 +54,6 @@ public class InstructionBuilder : IMapBuilder
 
         return finalMessages;
     }
-    
-    private readonly Dictionary<string, string> _instructionMessages = new Dictionary<string, string>
-        {
-            { "Move", "(W/A/S/D) Move" },
-            { "PickUp", "(E) Pick up item" },
-            { "Drop", "(Q)[1-9] Drop item" },
-            { "EquipLeft", "(K)[1-9] Equip item in left hand" },
-            { "EquipRight", "(L)[1-9] Equip item in right hand" },
-            { "Quit", "(ESC) Quit" }
-        };
 
     public IMapBuilder BuildEmpty()
     {
@@ -86,6 +87,7 @@ public class InstructionBuilder : IMapBuilder
 
     public IMapBuilder AddEnemies(int count)
     {
-   return this;
+        _isCombatMessage = true;
+        return this;
     }
 }

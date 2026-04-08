@@ -21,8 +21,8 @@ public abstract class BaseEnemy : IEnemy
     public int GetX() => _x;
     public int GetY() => _y;
     
-    public virtual string GetSymbol() => _name[0].ToString();
-    public override string ToString() => _name;
+    public virtual string GetSymbol() => "X";
+    public override string ToString() => $"{_name} ({_health}/{_maxHealth})";
     
     public int GetDamage() => _damage;
     public int GetHealth() => _health;
@@ -31,7 +31,7 @@ public abstract class BaseEnemy : IEnemy
     public void DecreaseHealth(int damage)
     {
         int actualDamage = Math.Max(0, damage - _defence);
-        _health -= actualDamage;
+        _health -= damage;
         if (_health < 0) _health = 0;
     }
 

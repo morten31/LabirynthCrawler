@@ -10,6 +10,7 @@ public interface IItem
     bool IsTwoHanded();
     void OnPickUp(Player player);
     Attributes GetAttributes(); 
+    public string ToString();
     
     (int Damage, int Defense) Accept(IAttackVisitor visitor);
 }

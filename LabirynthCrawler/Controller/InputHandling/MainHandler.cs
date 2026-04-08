@@ -6,7 +6,7 @@ namespace LabirynthCrawler.Controller.InputHandling;
 
 public class MainHandler
 {
-    private BaseHandler _start = new StartHandler();
+    private BaseHandler _start = new StartEndHandler();
     private bool _shouldRun = true;
     public void Initialize()
     {
@@ -32,12 +32,14 @@ public class MainHandler
         var pickUpHandler = new PickUpHandler();
         var dropHandler = new DropHandler();
         var equipHandler = new EquipHandler();
+        var combatHandler = new CombatHandler();
         var wrongInputHandler = new WrongInputHandler();
             
         start.SetNext(moveHandler);
         moveHandler.SetNext(pickUpHandler);
         pickUpHandler.SetNext(dropHandler);
         dropHandler.SetNext(equipHandler);
-        equipHandler.SetNext(wrongInputHandler);
+        equipHandler.SetNext(combatHandler);
+        combatHandler.SetNext(wrongInputHandler); 
     }
 }
