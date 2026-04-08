@@ -1,4 +1,5 @@
 ﻿using LabirynthCrawler.Model.Items;
+
 namespace LabirynthCrawler.Model.PlayerModel;
 
 public class Inventory
@@ -6,10 +7,9 @@ public class Inventory
     private int _gold = 0;
     private int _coins = 0;
 
-    private ItemBase? _leftHand;
-    private ItemBase? _rightHand;
-
-    private List<ItemBase> _itemList = [];
+    private IItem? _leftHand;
+    private IItem? _rightHand;
+    private List<IItem> _itemList = [];
 
     public int GetCoinsCount() => _coins;
     public int GetGoldCount() => _gold;
@@ -17,15 +17,15 @@ public class Inventory
     public void ChangeGoldCount(int gold) => _gold += gold;
     public void ChangeCoinsCount(int coins) => _coins += coins; 
     
-    public (ItemBase?, ItemBase?) GetHandsContent() => (_leftHand, _rightHand);
-    public void AddToInventory(ItemBase item) => _itemList.Add(item);
+    public (IItem?, IItem?) GetHandsContent() => (_leftHand, _rightHand);
+    public void AddToInventory(IItem item) => _itemList.Add(item);
 
     public int GetItemCount() => _itemList.Count;
     
-    public IReadOnlyList<ItemBase> GetItems() => _itemList;
+    public IReadOnlyList<IItem> GetItems() => _itemList;
     public void EquipItem(char hand, int idx)
     {
-        ItemBase item = _itemList[idx];
+        IItem item = _itemList[idx];
         if (item.IsTwoHanded())
         {
             UnEquipItem('L');
@@ -73,9 +73,9 @@ public class Inventory
         }
     }
 
-    public IPickable RemoveFromInventory(int idx)
+    public IItem RemoveFromInventory(int idx)
     {
-        IPickable item = _itemList[idx];
+        IItem item = _itemList[idx];
         if (_leftHand == item)
         {
             UnEquipItem('L');
@@ -89,4 +89,32 @@ public class Inventory
         return item;
     }
     
+    public List<IItem> GetEquippedItems()
+    {
+        List<IItem> itemsInHands = new List<IItem>();
+        (IItem? item1, IItem? item2) = GetHandsContent();
+
+        if (item1 != null && item1.IsTwoHanded())
+        {
+            itemsInHands.Add(item1);
+        }
+        else
+        {
+            if (item1 != null) itemsInHands.Add(item1);
+            if (item2 != null) itemsInHands.Add(item2);
+        }
+
+        return itemsInHands;
+    }
+
+    public Attributes GetEquippedAttributes()
+    {
+        Attributes total = new Attributes();
+        foreach (var item in GetEquippedItems())
+        {
+            total = total.Add(item.GetAttributes());
+        }
+        return total;
+    }
+
 }

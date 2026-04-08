@@ -2,7 +2,6 @@
 using LabirynthCrawler.Model;
 using LabirynthCrawler.Model.PlayerModel;
 using LabirynthCrawler.Model.Board;
-using LabirynthCrawler.Model.Items;
 
 namespace LabirynthCrawler.View;
 
@@ -15,7 +14,7 @@ public class FrameRenderer
     
     private const int RightPanelX = 68;
     private const int BottomPanelY = 25;
-    private const int ActionsStartY = 16; // pod ekwipunkiem (3 equipped + 1 blank + 1 header + ~10 items)
+    private const int ActionsStartY = 16;
 
     public void Initialize()
     {
@@ -94,8 +93,8 @@ public class FrameRenderer
         string leftHand = hands.Item1 != null ? hands.Item1.ToString()! : "Empty";
         string rightHand = hands.Item2 != null ? hands.Item2.ToString()! : "Empty";
     
-        WriteAt($"Left Hand:  {leftHand}".PadRight(30), RightPanelX, y++);
-        WriteAt($"Right Hand: {rightHand}".PadRight(30), RightPanelX, y++);
+        WriteAt($"Left Hand:  {leftHand}".PadRight(50), RightPanelX, y++);
+        WriteAt($"Right Hand: {rightHand}".PadRight(50), RightPanelX, y++);
     
         y++;
         WriteAt("=== INVENTORY ===", RightPanelX, y++);

@@ -2,39 +2,41 @@
 
 namespace LabirynthCrawler.Model.Items;
 
-public class Gold : IPickable
+public class Gold : ItemBase
 {
     private int _ammount;
-    public char GetSymbol() => 'G';
+    public override char GetSymbol() => 'G';
 
     public Gold(int ammount)
     {
         _ammount = ammount;
     }
     
-    public override string ToString() => $"{_ammount}x Gold";
-
-
-    public void OnPickUp(Player player)
+    public override string Name => $"{_ammount}x Gold";
+    
+    public override void OnPickUp(Player player)
     {
         player.GetInventory().ChangeGoldCount(_ammount);
     }
+    
+    public override string ToString() => Name; 
 }
 
-public class Coin : IPickable
+public class Coin : ItemBase
 {
     private int _ammount;
-    public char GetSymbol() => 'C';
+    public override char GetSymbol() => 'C';
 
     public Coin(int ammount)
     {
         _ammount = ammount;
     }
     
-    public override string ToString() => $"{_ammount}x Coin";
+    public override string Name => $"{_ammount}x Coin";
 
-    public void OnPickUp(Player player)
+    public override void OnPickUp(Player player)
     {
         player.GetInventory().ChangeCoinsCount(_ammount);
     }
+    public override string ToString() => Name; 
 }

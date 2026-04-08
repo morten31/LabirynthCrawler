@@ -6,7 +6,7 @@ public class PickUpHandler : BaseHandler
 {
     public override bool Handle(ConsoleKeyInfo key, GameModel model)
     {
-        if (key.Key == ConsoleKey.E)
+        if (KeyBindings.Matches(key, GameAction.PickUp))
         {
             if (model.PickUpItem())
                 return true;

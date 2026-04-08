@@ -1,4 +1,5 @@
-﻿using LabirynthCrawler.Model.Items;
+﻿using LabirynthCrawler.Model.Enemies;
+using LabirynthCrawler.Model.Items;
 using LabirynthCrawler.Model.MapGeneration;
 
 namespace LabirynthCrawler.Model.Board;
@@ -14,7 +15,7 @@ public class Map
     
     public void SetTileWall(int x, int y) => _map[y, x] = new Tile("wall");
     
-    public void AddItem(int x, int y, IPickable item)
+    public void AddItem(int x, int y, IItem item)
     {
         if (!_map[y, x].IsWall())
         {
@@ -30,5 +31,13 @@ public class Map
             return false;
 
         return true;
+    }
+    
+    public void AddEnemy(int x, int y, IEnemy enemy)
+    {
+        if (!_map[y, x].IsWall())
+        {
+            _map[y, x].AddEnemy(enemy);
+        }
     }
 }

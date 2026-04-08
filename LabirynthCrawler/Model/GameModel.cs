@@ -53,7 +53,7 @@ public class GameModel
         Tile tile = _map.GetTile(_player.GetX(), _player.GetY());
         if (tile.GetTileItems.Count <= 0)
             return false;
-        IPickable item = tile.GetTileItems.First();
+        IItem item = tile.GetTileItems.First();
         item.OnPickUp(_player);
         tile.RemoveItem(tile.GetTileItems.IndexOf(item));
         return true;
@@ -66,7 +66,7 @@ public class GameModel
         if (idx < 0 || inventory.GetItemCount() < idx + 1)
             return false;
         
-        IPickable item = inventory.RemoveFromInventory(idx);
+        IItem item = inventory.RemoveFromInventory(idx);
         _map.AddItem(_player.GetX(), _player.GetY(), item);
         return true;
     }

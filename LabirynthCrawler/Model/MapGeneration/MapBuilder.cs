@@ -1,5 +1,8 @@
 ﻿using LabirynthCrawler.Model.Board;
+using LabirynthCrawler.Model.Enemies;
 using LabirynthCrawler.Model.Items;
+using LabirynthCrawler.Model.Items.Decorators;
+using LabirynthCrawler.Model.Items.Weapons;
 
 namespace LabirynthCrawler.Model.MapGeneration;
 
@@ -156,7 +159,7 @@ public class MapBuilder : IMapBuilder
 
         for (int i = 0; i < count && TryGetFloor(out var pos); i++)
         {
-            IPickable item = _rng.Next(_items.Length) switch
+            IItem item = _rng.Next(0,5) switch
             {
                 0 => new Coin(_rng.Next(1, 10)),
                 1 => new Gold(_rng.Next(1, 3)),
@@ -175,12 +178,26 @@ public class MapBuilder : IMapBuilder
 
         for (int i = 0; i < count && TryGetFloor(out var pos); i++)
         {
-            Weapon weapon = _rng.Next(_weapons.Length) switch
+            IWeapon weapon = _rng.Next(0,3) switch
             {
-                0 => new Dagger(),
-                1 => new Excalibur(),
-                _ => new Longsword()
+                0 => new Calka(),
+                1 => new Pochodna(),
+                _ => new ZabEulera()
             };
+            
+            int modifiersCount = _rng.Next(0, 3); 
+
+            for (int j = 0; j < modifiersCount; j++)
+            {
+                int modifierType = _rng.Next(3);
+                weapon = modifierType switch
+                {
+                    0 => new StrongModifier(weapon),
+                    1 => new UnluckyModifier(weapon),
+                    _ => new AgileModifier(weapon)
+                };
+            }
+            
             _map.AddItem(pos.x, pos.y, weapon);
         }
         
@@ -228,7 +245,23 @@ public class MapBuilder : IMapBuilder
             _FloorList.Remove((x, y));
     }
     
-    private readonly string[] _items = { "Coin", "Gold", "DungeonKey", "TrollSkull", "DragonEgg" };
-    private readonly string[] _weapons = { "Dagger", "Excalibur", "Longsword" };
+    public IMapBuilder AddEnemies(int count)
+    {
+        if (!_firstStepDone) return this; 
 
+        for (int i = 0; i < count && TryGetFloor(out var pos); i++)
+        {
+            IEnemy enemy = _rng.Next(0, 3) switch
+            {
+                0 => new Goblin(),
+                1 => new Orc(),
+                _ => new Troll()
+            };
+            
+            enemy.SetPosition(pos.x, pos.y);
+            _map.AddEnemy(pos.x, pos.y, enemy);
+        }
+        
+        return this;
+    }
 }

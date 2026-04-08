@@ -15,6 +15,7 @@ public class MapDirector
             .AddRooms(6, 3)
             .AddItems(7)
             .AddWeapons(4)
+            .AddEnemies(5)
             ;
     }
     public void BuildLabirynth(IMapBuilder builder)

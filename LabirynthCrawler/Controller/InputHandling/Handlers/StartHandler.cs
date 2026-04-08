@@ -6,7 +6,7 @@ public class StartHandler : BaseHandler
 {
     public override bool Handle(ConsoleKeyInfo key, GameModel model)
     {
-        if (key.Key == ConsoleKey.Escape)
+        if (KeyBindings.Matches(key, GameAction.Quit))
         {
             return false;
         }

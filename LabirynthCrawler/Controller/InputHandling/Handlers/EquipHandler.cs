@@ -6,9 +6,11 @@ public class EquipHandler : BaseHandler
 {
     public override bool Handle(ConsoleKeyInfo key, GameModel model)
     {
-        if (key.Key == ConsoleKey.K || key.Key == ConsoleKey.L) // left or right hand
+        bool isEquipLeft = KeyBindings.Matches(key, GameAction.EquipLeft);
+        bool isEquipRight = KeyBindings.Matches(key, GameAction.EquipRight);
+        if (isEquipLeft || isEquipRight) 
         {
-            char hand = (key.Key == ConsoleKey.K) ? 'L' : 'R';
+            char hand = isEquipLeft ? 'L' : 'R';
             ConsoleKeyInfo key2 = Console.ReadKey(true);
 
             if (char.IsDigit(key2.KeyChar))

@@ -1,4 +1,6 @@
-﻿namespace LabirynthCrawler.Model.MapGeneration;
+﻿using LabirynthCrawler.Controller.InputHandling;
+
+namespace LabirynthCrawler.Model.MapGeneration;
 
 public class InstructionBuilder : IMapBuilder
 {
@@ -12,17 +14,33 @@ public class InstructionBuilder : IMapBuilder
         List<string> finalMessages = new List<string>();
 
         if (_isMovementMessage)
-            finalMessages.Add(_instructionMessages["Move"]);
+        {
+            string up = KeyBindings.Bindings[GameAction.MoveUp].Key.ToString();
+            string left = KeyBindings.Bindings[GameAction.MoveLeft].Key.ToString();
+            string down = KeyBindings.Bindings[GameAction.MoveDown].Key.ToString();
+            string right = KeyBindings.Bindings[GameAction.MoveRight].Key.ToString();
+            finalMessages.Add($"({up}/{left}/{down}/{right}) Move");
+        }
+
         if (_isItemPresentMessage)
         {
-            finalMessages.Add(_instructionMessages["PickUp"]);
-            finalMessages.Add(_instructionMessages["Drop"]);
-            finalMessages.Add(_instructionMessages["EquipLeft"]);
-            finalMessages.Add(_instructionMessages["EquipRight"]);
+            var pickUp = KeyBindings.Bindings[GameAction.PickUp];
+            var drop = KeyBindings.Bindings[GameAction.Drop];
+            var equipLeft = KeyBindings.Bindings[GameAction.EquipLeft];
+            var equipRight = KeyBindings.Bindings[GameAction.EquipRight];
+
+            finalMessages.Add($"({pickUp.Key}) {pickUp.Description}");
+            finalMessages.Add($"({drop.Key}) {drop.Description}");
+            finalMessages.Add($"({equipLeft.Key}) {equipLeft.Description}");
+            finalMessages.Add($"({equipRight.Key}) {equipRight.Description}");
         }
+
         if (_isQuitMessage)
-            finalMessages.Add(_instructionMessages["Quit"]);
-        
+        {
+            var quit = KeyBindings.Bindings[GameAction.Quit];
+            finalMessages.Add($"({quit.Key}) {quit.Description}");
+        }
+
         return finalMessages;
     }
     
@@ -64,5 +82,10 @@ public class InstructionBuilder : IMapBuilder
         
         _isItemPresentMessage = true;
         return this;
+    }
+
+    public IMapBuilder AddEnemies(int count)
+    {
+   return this;
     }
 }

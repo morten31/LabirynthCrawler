@@ -4,14 +4,12 @@ public class MoveHandler : BaseHandler
 {
     public override bool Handle(ConsoleKeyInfo key, GameModel model)
     {
-        Direction? dir = key.Key switch
-        {
-            ConsoleKey.W => Direction.Up,
-            ConsoleKey.A => Direction.Left,
-            ConsoleKey.S => Direction.Down,
-            ConsoleKey.D => Direction.Right,
-            _ => null
-        };
+        Direction? dir = null;
+
+        if (KeyBindings.Matches(key, GameAction.MoveUp)) dir = Direction.Up;
+        else if (KeyBindings.Matches(key, GameAction.MoveDown)) dir = Direction.Down;
+        else if (KeyBindings.Matches(key, GameAction.MoveLeft)) dir = Direction.Left;
+        else if (KeyBindings.Matches(key, GameAction.MoveRight)) dir = Direction.Right;
 
         if (dir != null)
         {

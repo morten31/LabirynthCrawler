@@ -6,7 +6,7 @@ public class DropHandler : BaseHandler
 {
     public override bool Handle(ConsoleKeyInfo key, GameModel model)
     {
-        if (key.Key == ConsoleKey.Q)
+        if (KeyBindings.Matches(key, GameAction.Drop))
         {
             ConsoleKeyInfo key2 = Console.ReadKey(true);
 
