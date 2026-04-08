@@ -16,7 +16,6 @@ public class CombatSystem
 
         if (activeItems.Count == 0)
         {
-            // Atak gołymi rękami
             var (dmg, def) = attackVisitor.Visit((IItem)null!);
             playerTotalDamage = dmg;
             playerTotalDefense = def;
@@ -31,10 +30,8 @@ public class CombatSystem
             }
         }
 
-        // Faza 1: Gracz zadaje obrażenia
         enemy.DecreaseHealth(playerTotalDamage);
 
-        // Faza 2: Przeciwnik oddaje (jeśli żyje)
         if (enemy.GetHealth() > 0)
         {
             int enemyDamage = Math.Max(0, enemy.GetDamage() - playerTotalDefense);
