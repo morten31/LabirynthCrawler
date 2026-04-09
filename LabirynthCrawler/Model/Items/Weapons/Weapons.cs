@@ -3,12 +3,12 @@
 
 public class Calka : HeavyWeapon
 {
-    public Calka() : base("Całka", 20) { }
+    public Calka() : base("Całka", 12) { }
 }
 
 public class Pochodna : LightWeapon
 {
-    public Pochodna() : base("Pochodna", 10) { }
+    public Pochodna() : base("Pochodna", 5) { }
 }
 
 public class TwierdzenieBanacha : MagicWeapon

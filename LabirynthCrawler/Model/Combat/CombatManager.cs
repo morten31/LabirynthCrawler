@@ -16,7 +16,7 @@ public class CombatManager
 
         if (itemsInHands.Count == 0)
         {
-            var stats = visitor.Visit((IItem)null!);
+            var stats = visitor.Visit((IItem)null);
             totalDamage += stats.Damage;
             totalDefence += stats.Defense;
         }
@@ -33,8 +33,8 @@ public class CombatManager
         totalDamage -= enemy.GetDefence();
         totalDamage = Math.Max(totalDamage, 0);
 
-        int rawReceived = enemy.GetDamage() - totalDefence;
-        int damageReceived = Math.Max(rawReceived, 0);
+        int damageReceived = enemy.GetDamage() - totalDefence;
+        damageReceived = Math.Max(damageReceived, 0);
 
         return (totalDamage, damageReceived);
     }

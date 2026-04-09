@@ -178,10 +178,11 @@ public class MapBuilder : IMapBuilder
 
         for (int i = 0; i < count && TryGetFloor(out var pos); i++)
         {
-            IWeapon weapon = _rng.Next(0,3) switch
+            IWeapon weapon = _rng.Next(0,4) switch
             {
                 0 => new Calka(),
                 1 => new Pochodna(),
+                2 => new TwierdzenieBanacha(),
                 _ => new ZabEulera()
             };
             

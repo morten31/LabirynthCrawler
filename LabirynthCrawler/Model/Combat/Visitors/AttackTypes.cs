@@ -31,5 +31,5 @@ public class MagicAttackVisitor(Player player) : IAttackVisitor
     public (int Damage, int Defense) Visit(HeavyWeapon weapon) => (1, _attr.Luck);
     public (int Damage, int Defense) Visit(LightWeapon weapon) => (1, _attr.Luck);
     public (int Damage, int Defense) Visit(MagicWeapon weapon) => (weapon.Damage + _attr.Wisdom, _attr.Wisdom * 2);
-    public (int Damage, int Defense) Visit(IItem item) => (0, _attr.Luck);
+    public (int Damage, int Defense) Visit(IItem? item) => (0, _attr.Luck);
 }

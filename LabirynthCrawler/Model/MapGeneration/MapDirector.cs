@@ -13,8 +13,8 @@ public class MapDirector
             .AddCorridors()
             .AddRooms(1, 4)
             .AddRooms(6, 3)
-            .AddItems(7)
-            .AddWeapons(4)
+            .AddItems(5)
+            .AddWeapons(7)
             .AddEnemies(5)
             ;
     }

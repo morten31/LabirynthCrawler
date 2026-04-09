@@ -46,7 +46,7 @@ public class FrameRenderer
 
     private void DrawAttributes(Player player)
     {
-        Attributes attr = player.GetAttributes(); 
+        Attributes attr = player.GetTotalAttributes(); 
         Inventory inv = player.GetInventory();
 
         int y = MapY;
@@ -102,8 +102,8 @@ public class FrameRenderer
         string leftHand = hands.Item1 != null ? hands.Item1.ToString()! : "Empty";
         string rightHand = hands.Item2 != null ? hands.Item2.ToString()! : "Empty";
     
-        WriteAt($"Left Hand:  {leftHand}".PadRight(50), RightPanelX, y++);
-        WriteAt($"Right Hand: {rightHand}".PadRight(50), RightPanelX, y++);
+        WriteAt($"Left Hand:  {leftHand}".PadRight(52), RightPanelX, y++);
+        WriteAt($"Right Hand: {rightHand}".PadRight(52), RightPanelX, y++);
     
         y++;
         WriteAt("=== INVENTORY ===", RightPanelX, y++);
