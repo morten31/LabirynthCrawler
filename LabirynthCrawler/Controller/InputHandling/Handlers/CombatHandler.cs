@@ -7,7 +7,7 @@ public class CombatHandler : BaseHandler
 {
     public override bool Handle(ConsoleKeyInfo key, GameModel model)
     {
-        if (model.IsGameOver)
+        if (model.CurrentState == GameModel.GameState.GameOver)
             return base.Handle(key, model);
 
         if (KeyBindings.Matches(key, GameAction.AttackNormal))

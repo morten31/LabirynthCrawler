@@ -28,6 +28,7 @@ public class MainHandler
 
     private void InitializeInputChain(BaseHandler start)
     {
+        var logHandler = new LogViewHandler();
         var moveHandler = new MoveHandler();
         var pickUpHandler = new PickUpHandler();
         var dropHandler = new DropHandler();
@@ -35,7 +36,8 @@ public class MainHandler
         var combatHandler = new CombatHandler();
         var wrongInputHandler = new WrongInputHandler();
             
-        start.SetNext(moveHandler);
+        start.SetNext(logHandler);
+        logHandler.SetNext(moveHandler);
         moveHandler.SetNext(pickUpHandler);
         pickUpHandler.SetNext(dropHandler);
         dropHandler.SetNext(equipHandler);

@@ -1,12 +1,17 @@
 ﻿using System;
+using LabirynthCrawler.Controller.InputHandling;
 using LabirynthCrawler.Model;
 using LabirynthCrawler.Model.PlayerModel;
 using LabirynthCrawler.Model.Board;
+using LabirynthCrawler.Model.Logger;
 
 namespace LabirynthCrawler.View;
 
 public class FrameRenderer
 {
+    private const int MaxRenderY = 35;
+    private const int MaxRenderX = 110;
+    
     private const int LeftPanelX = 0;
     
     private const int MapX = 24; 
@@ -15,6 +20,11 @@ public class FrameRenderer
     private const int RightPanelX = 68;
     private const int BottomPanelY = 25;
     private const int ActionsStartY = 16;
+
+    private const int ShortLogCount = 5;
+    
+
+    private GameModel.GameState _previousState = GameModel.GameState.Playing;
 
     public void Initialize()
     {
@@ -25,23 +35,45 @@ public class FrameRenderer
     public void Render(GameModel model)
     {
         Player player = model.GetPlayer();
-    
+        
+        if (model.CurrentState == GameModel.GameState.ViewingLog)
+        {
+            if (_previousState != GameModel.GameState.ViewingLog)
+            {
+                RenderLogScreen();
+                _previousState = model.CurrentState;
+            }
+
+            return;
+        }
+
+        if (_previousState == GameModel.GameState.ViewingLog)
+            Console.Clear();
+        
         DrawAttributes(player);
         DrawMap(model);
         DrawInventory(player);
         DrawInfoBar(model);
         DrawActions(model);
-        if (model.IsGameOver)
+        if (model.CurrentState == GameModel.GameState.GameOver)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             WriteAt(" ============================ ", MapX + 5, MapY + Map.Height / 2 - 1);
             WriteAt(" =        YOU DIED!         = ", MapX + 5, MapY + Map.Height / 2);
             WriteAt(" =   Press ESC to leave.    = ", MapX + 5, MapY + Map.Height / 2 + 1);
             WriteAt(" ============================ ", MapX + 5, MapY + Map.Height / 2 + 2);
+            
+            string logFile = GameLogger.Instance.GetLogFileName();
+            string logMsg = $"Log saved at: {logFile}";
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            WriteAt(logMsg, MapX + 5 - (logMsg.Length/2) + 14, MapY + Map.Height / 2 + 4);
+            
             Console.ResetColor();
         }
 
         Console.SetCursorPosition(0, 0);
+
+        _previousState = model.CurrentState;
     }
 
     private void DrawAttributes(Player player)
@@ -124,44 +156,20 @@ public class FrameRenderer
     {
         Player player = model.GetPlayer();
         Tile tile = model.GetMap().GetTile(player.GetX(), player.GetY());
-    
+        
         int infoY = BottomPanelY - 2;
-        string infoText = ">>> INFO: ";
-
-        if (!string.IsNullOrEmpty(model.LastActionLog))
-        {
-            infoText += model.LastActionLog;
-            model.LastActionLog = "";
-        }
-        else if (tile.GetEnemies().Count > 0)
-        {
-            string enemyName = tile.GetEnemies()[0].ToString();
-            infoText += $"You see a {enemyName} here!";
-        }
-        else if (tile.GetTileItems.Count > 0)
-        {
-            string itemName = tile.GetTileItems[0].ToString();
-            infoText += $"You see '{itemName}' on the ground.";
-        }
-        else
-        {
-            infoText += "There is nothing interesting here.";
-        }
-
+        
         WriteAt(new string(' ', 110), LeftPanelX, infoY);
-        WriteAt(new string(' ', 110), LeftPanelX, infoY + 1);
-
-        if (infoText.Length > 60)
+        WriteAt(">>> RECENT LOGS:", LeftPanelX, infoY);
+        for (int i = 1; i <= ShortLogCount; i++)
         {
-            int splitIndex = infoText.LastIndexOf(' ', 60);
-            if (splitIndex == -1) splitIndex = 60;
-
-            WriteAt(infoText.Substring(0, splitIndex), LeftPanelX, infoY);
-            WriteAt(infoText.Substring(splitIndex).TrimStart(), LeftPanelX, infoY + 1);
+            WriteAt(new string(' ', 110), LeftPanelX, infoY + i);
         }
-        else
+    
+        var recentLogs = GameLogger.Instance.GetRecentLogs(5);
+        for (int i = 0; i < recentLogs.Count; i++)
         {
-            WriteAt(infoText, LeftPanelX, infoY);
+            WriteAt(recentLogs[i], LeftPanelX, infoY + 1 + i);
         }
     }
 
@@ -174,6 +182,23 @@ public class FrameRenderer
         foreach (string msg in messages)
             WriteAt(msg.TrimEnd(',', ' ').PadRight(30), RightPanelX, y++);
     }
+    
+    private void RenderLogScreen()
+    {
+        Console.Clear();
+        Console.WriteLine("================================ EVENT DIARY ================================");
+        Console.WriteLine($" (Press {KeyBindings.Bindings[GameAction.ToggleLog].Key.ToString()}" +
+                          $" or {KeyBindings.Bindings[GameAction.Quit].Key.ToString()}, to return to the game)\n");
+        
+        var logs = GameLogger.Instance.GetAllLogs();
+
+        for (int i = 0; i < logs.Count; i++)
+        {
+            Console.WriteLine(logs[i]);
+        }
+    }
+    
+    
 
     private void WriteAt(string text, int x, int y)
     {

@@ -13,6 +13,7 @@ public enum GameAction
     AttackNormal,
     AttackStealth,
     AttackMagic,    
+    ToggleLog,
     Quit
 }
 
@@ -35,6 +36,7 @@ public static class KeyBindings
         { GameAction.AttackStealth, (ConsoleKey.N, "Stealth Attack") },
         { GameAction.AttackMagic,   (ConsoleKey.M, "Magic Attack") },
         
+        { GameAction.ToggleLog, (ConsoleKey.J, "View Log") },
         { GameAction.Quit,      (ConsoleKey.Escape, "Quit Game") }
     };
     

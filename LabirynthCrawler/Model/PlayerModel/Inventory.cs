@@ -1,4 +1,5 @@
 ﻿using LabirynthCrawler.Model.Items;
+using LabirynthCrawler.Model.Logger;
 
 namespace LabirynthCrawler.Model.PlayerModel;
 
@@ -32,6 +33,7 @@ public class Inventory
             UnEquipItem('R');
             _rightHand = item;
             _leftHand = item;
+            GameLogger.Instance.Log($"Equipped item in both hands: {item.Name}");
             return;
         }
         UnEquipItem(hand);
@@ -40,12 +42,14 @@ public class Inventory
             if (_rightHand == item)
                 UnEquipItem('R');
             _leftHand = item;
+            GameLogger.Instance.Log($"Equipped item {item.Name} in left hand");
         }
         else
         {
             if (_leftHand == item)
                 UnEquipItem('L');
             _rightHand = item;
+            GameLogger.Instance.Log($"Equipped item {item.Name} in right hand");
         }
     }
 

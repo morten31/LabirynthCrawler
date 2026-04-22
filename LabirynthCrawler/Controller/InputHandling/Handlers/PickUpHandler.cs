@@ -8,8 +8,8 @@ public class PickUpHandler : BaseHandler
     {
         if (KeyBindings.Matches(key, GameAction.PickUp))
         {
-            if (model.PickUpItem())
-                return true;
+            model.PickUpItem();
+            return true;
         }
         return base.Handle(key, model);
     }

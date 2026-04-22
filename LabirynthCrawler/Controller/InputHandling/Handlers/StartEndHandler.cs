@@ -11,7 +11,7 @@ public class StartEndHandler : BaseHandler
             return false;
         }
 
-        if (model.IsGameOver) return true;
+        if (model.CurrentState == GameModel.GameState.GameOver) return true;
         
         return base.Handle(key, model);
     }

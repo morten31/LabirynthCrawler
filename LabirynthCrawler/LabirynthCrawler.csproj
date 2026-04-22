@@ -7,4 +7,10 @@
         <TargetFrameworks>net8.0;net8.0-windows</TargetFrameworks>
     </PropertyGroup>
 
+    <ItemGroup>
+      <None Update="Controller\config.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
