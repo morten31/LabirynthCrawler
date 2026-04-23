@@ -69,7 +69,10 @@ public class EndGenerationStrategy : IMapGenerationStrategy
 {
     public void Generate(IMapBuilder builder)
     {
-        builder
+        MapDirector director = new();
+        director.BuildLabirynth(builder);
+        
+        /*builder
             .BuildEmpty()
             .FillWithWalls()
             .AddMainRoom(20, 10)
@@ -77,6 +80,6 @@ public class EndGenerationStrategy : IMapGenerationStrategy
             .AddItems(4)
             .AddWeapons(3)
             .AddEnemies(8)
-            .AddArtifact(); 
+            .AddArtifact();*/ 
     }
 }

@@ -72,7 +72,10 @@ public class NetherGenerationStrategy : IMapGenerationStrategy
 {
     public void Generate(IMapBuilder builder)
     {
-        builder
+        MapDirector director = new();
+        director.BuildLabirynth(builder);
+        
+        /*builder
             .BuildEmpty()
             .FillWithWalls()
             .AddCorridors()
@@ -81,6 +84,6 @@ public class NetherGenerationStrategy : IMapGenerationStrategy
             .AddItems(5)
             .AddWeapons(4)
             .AddEnemies(9)
-            .AddArtifact(); 
+            .AddArtifact(); */
     }
 }

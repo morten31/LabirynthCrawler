@@ -60,15 +60,19 @@ public class OverworldGenerationStrategy : IMapGenerationStrategy
 {
     public void Generate(IMapBuilder builder)
     {
-        builder
+        MapDirector director = new();
+        director.BuildStandardMap(builder);
+        
+        /*builder
             .BuildEmpty()
             .FillWithWalls()
             .AddMainRoom(14, 10) 
             .AddRooms(3, 4)
             .AddCorridors()
+            .AddCorridors()
             .AddItems(8)
             .AddWeapons(4)
             .AddEnemies(6)
-            .AddArtifact();
+            .AddArtifact();*/
     }
 }
