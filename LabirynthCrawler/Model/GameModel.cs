@@ -6,6 +6,8 @@ using LabirynthCrawler.Model.Logger;
 using LabirynthCrawler.Model.MapGeneration;
 using LabirynthCrawler.Model.PlayerModel;
 using LabirynthCrawler.Model.MapGeneration;
+using LabirynthCrawler.Model.Themes;
+
 namespace LabirynthCrawler.Model;
 
 
@@ -30,17 +32,42 @@ public class GameModel
     
     public bool IsGameOver { get; private set; } = false;
     
-    public void InitializeGame(int startX, int startY)
+    public void InitializeGame(int startX, int startY, string themeName)
     {
         _player = new Player((startX, startY));
-        var builder = new MapBuilder(startX, startY);
         _instructionBuilder = new InstructionBuilder();
-        var director = new MapDirector();
         
-        director.BuildStandardMap(builder);
-        director.BuildStandardMap(_instructionBuilder);
+        IThemeFactory factory;
+        IMapGenerationStrategy strategy;
+
+        switch (themeName.ToLower())
+        {
+            case "overworld":
+                factory = new OverworldFactory();
+                strategy = new OverworldGenerationStrategy();
+                break;
+            case "nether":
+                factory = new NetherFactory();
+                strategy = new NetherGenerationStrategy();
+                break;
+            case "end":
+                factory = new EndFactory();
+                strategy = new EndGenerationStrategy();
+                break;
+            default:
+                factory = new OverworldFactory(); 
+                strategy = new OverworldGenerationStrategy();
+                break;
+        }
+        
+        var builder = new MapBuilder(startX, startY, factory);
+
+        strategy.Generate(builder);
+        strategy.Generate(_instructionBuilder);
         
         _map = builder.GetMap();
+        
+        GameLogger.Instance.Log($"--- {factory.GetWelcomeMessage()} ---");
     }
 
     public void MovePlayer(Direction dir)

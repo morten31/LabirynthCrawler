@@ -167,9 +167,20 @@ public class FrameRenderer
         }
     
         var recentLogs = GameLogger.Instance.GetRecentLogs(5);
+        
+        int maxLogWidth = 65;
+        
         for (int i = 0; i < recentLogs.Count; i++)
         {
-            WriteAt(recentLogs[i], LeftPanelX, infoY + 1 + i);
+            string logText = recentLogs[i];
+
+            if (logText.Length > maxLogWidth)
+            {
+                logText = logText.Substring(0, maxLogWidth - 3) + "...";
+            }
+            
+            WriteAt(new string(' ', MaxRenderX), LeftPanelX, infoY + 1 + i);
+            WriteAt(logText, LeftPanelX, infoY + 1 + i);
         }
     }
 

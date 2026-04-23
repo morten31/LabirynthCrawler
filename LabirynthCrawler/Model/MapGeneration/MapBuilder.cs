@@ -3,6 +3,7 @@ using LabirynthCrawler.Model.Enemies;
 using LabirynthCrawler.Model.Items;
 using LabirynthCrawler.Model.Items.Decorators;
 using LabirynthCrawler.Model.Items.Weapons;
+using LabirynthCrawler.Model.Themes;
 
 namespace LabirynthCrawler.Model.MapGeneration;
 
@@ -12,13 +13,14 @@ public class MapBuilder : IMapBuilder
     protected readonly (int, int) _playerStart;
     protected bool _firstStepDone;
     protected readonly List<(int, int)> _FloorList = new();
+    protected readonly IThemeFactory _themeFactory;
 
-
-    public MapBuilder(Map map, int startX, int startY)
+    public MapBuilder(int startX, int startY, IThemeFactory themeFactory)
     {
-        _map = map;
+        _map = new Map();
         _playerStart = (startX, startY);
         _firstStepDone = false;
+        _themeFactory = themeFactory;
     }
 
     public MapBuilder(int startX, int startY)
@@ -159,14 +161,15 @@ public class MapBuilder : IMapBuilder
 
         for (int i = 0; i < count && TryGetFloor(out var pos); i++)
         {
-            IItem item = _rng.Next(0,5) switch
+            IItem item = _themeFactory.CreateItem(); 
+            /*IItem item = _rng.Next(0,5) switch
             {
                 0 => new Coin(_rng.Next(1, 10)),
                 1 => new Gold(_rng.Next(1, 3)),
                 2 => new DungeonKey(),
                 3 => new DragonEgg(),
                 _ => new TrollSkull()
-            };
+            };*/
             _map.AddItem(pos.x, pos.y, item);
         }
         return this;
@@ -178,13 +181,7 @@ public class MapBuilder : IMapBuilder
 
         for (int i = 0; i < count && TryGetFloor(out var pos); i++)
         {
-            IWeapon weapon = _rng.Next(0,4) switch
-            {
-                0 => new Calka(),
-                1 => new Pochodna(),
-                2 => new TwierdzenieBanacha(),
-                _ => new ZabEulera()
-            };
+            IWeapon weapon = _themeFactory.CreateWeapon(); 
             
             int modifiersCount = _rng.Next(0, 3); 
 
@@ -204,6 +201,18 @@ public class MapBuilder : IMapBuilder
         
         return this;
     }
+    
+    public IMapBuilder AddArtifact()
+    {
+        if (!_firstStepDone) return this;
+        if (TryGetFloor(out var pos))
+        {
+            IItem artifact = _themeFactory.CreateArtifact();
+            _map.AddItem(pos.x, pos.y, artifact);
+        }
+        return this;
+    }
+    
 
     public void MakeRoom(int x1, int y1, int width, int height)
     {
@@ -252,12 +261,7 @@ public class MapBuilder : IMapBuilder
 
         for (int i = 0; i < count && TryGetFloor(out var pos); i++)
         {
-            IEnemy enemy = _rng.Next(0, 3) switch
-            {
-                0 => new Goblin(),
-                1 => new Orc(),
-                _ => new Troll()
-            };
+            IEnemy enemy = _themeFactory.CreateEnemy();
             
             enemy.SetPosition(pos.x, pos.y);
             _map.AddEnemy(pos.x, pos.y, enemy);

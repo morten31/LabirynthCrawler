@@ -10,4 +10,5 @@ public interface IMapBuilder
     IMapBuilder AddItems(int count);
     IMapBuilder AddWeapons(int count);
     IMapBuilder AddEnemies(int count);
+    IMapBuilder AddArtifact();
 }

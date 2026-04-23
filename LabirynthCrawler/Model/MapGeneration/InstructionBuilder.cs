@@ -68,6 +68,7 @@ public class InstructionBuilder : IMapBuilder
         _isQuitMessage = true;
         return this;
     }
+    public IMapBuilder AddArtifact() => this;
     public IMapBuilder AddCorridors() => this;
     public IMapBuilder AddRooms(int roomCount, int roomSize) => this;
     public IMapBuilder AddMainRoom(int roomSizeX, int roomSizeY) => this;

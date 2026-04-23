@@ -21,7 +21,7 @@ class Program
         GameLogger.Instance.Log($"Started game as: {config.PlayerName}");
 
         GameModel model = new GameModel();
-        model.InitializeGame(21, 11);
+        model.InitializeGame(21, 11, config.Theme);
         
         MainHandler handler = new();
         handler.Initialize();

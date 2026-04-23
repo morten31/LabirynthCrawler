@@ -17,7 +17,7 @@ public abstract class ItemBase : IItem
         player.AddItem(this);
     }
     
-    public virtual Attributes GetAttributes() => new Attributes(); 
+    public virtual Attributes GetAttributes() => new(); 
     
     public override string ToString() => Name; 
     
