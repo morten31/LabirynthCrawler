@@ -3,6 +3,7 @@ using LabirynthCrawler.Model.Enemies;
 using LabirynthCrawler.Model.Items;
 using LabirynthCrawler.Model.Items.Decorators;
 using LabirynthCrawler.Model.Items.Weapons;
+using LabirynthCrawler.Model.Observers;
 using LabirynthCrawler.Model.Themes;
 
 namespace LabirynthCrawler.Model.MapGeneration;
@@ -14,13 +15,15 @@ public class MapBuilder : IMapBuilder
     protected bool _firstStepDone;
     protected readonly List<(int, int)> _FloorList = new();
     protected readonly IThemeFactory _themeFactory;
+    protected readonly ISoundPublisher _soundPublisher;
 
-    public MapBuilder(int startX, int startY, IThemeFactory themeFactory)
+    public MapBuilder(int startX, int startY, IThemeFactory themeFactory, ISoundPublisher soundPublisher)
     {
         _map = new Map();
         _playerStart = (startX, startY);
         _firstStepDone = false;
         _themeFactory = themeFactory;
+        _soundPublisher = soundPublisher;
     }
 
     public MapBuilder(int startX, int startY)
@@ -162,14 +165,6 @@ public class MapBuilder : IMapBuilder
         for (int i = 0; i < count && TryGetFloor(out var pos); i++)
         {
             IItem item = _themeFactory.CreateItem(); 
-            /*IItem item = _rng.Next(0,5) switch
-            {
-                0 => new Coin(_rng.Next(1, 10)),
-                1 => new Gold(_rng.Next(1, 3)),
-                2 => new DungeonKey(),
-                3 => new DragonEgg(),
-                _ => new TrollSkull()
-            };*/
             _map.AddItem(pos.x, pos.y, item);
         }
         return this;
@@ -259,12 +254,27 @@ public class MapBuilder : IMapBuilder
     {
         if (!_firstStepDone) return this; 
 
-        for (int i = 0; i < count && TryGetFloor(out var pos); i++)
+        int enemiesPlaced = 0;
+
+        while (enemiesPlaced < count)
         {
-            IEnemy enemy = _themeFactory.CreateEnemy();
+            List<IEnemy> enemyGroup = _themeFactory.CreateEnemyGroup(_soundPublisher);
+
+            foreach (var enemy in enemyGroup)
+            {
+                if (TryGetFloor(out var pos))
+                {
+                    enemy.SetPosition(pos.x, pos.y);
+                    _map.AddEnemy(pos.x, pos.y, enemy);
+                    enemiesPlaced++;
+                }
+                else
+                {
+                    break;
+                }
+            }
             
-            enemy.SetPosition(pos.x, pos.y);
-            _map.AddEnemy(pos.x, pos.y, enemy);
+            if (_FloorList.Count == 0) break;
         }
         
         return this;

@@ -2,14 +2,10 @@
 using LabirynthCrawler.Model.Items;
 using LabirynthCrawler.Model.Items.Weapons;
 using LabirynthCrawler.Model.MapGeneration;
+using LabirynthCrawler.Model.Observers;
 using LabirynthCrawler.Model.PlayerModel;
 
 namespace LabirynthCrawler.Model.Themes;
-
-public class Piglin : BaseEnemy { public Piglin() : base("Piglin", health: 35, damage: 18, defence: 3) { } }
-public class WitherSkeleton : BaseEnemy { public WitherSkeleton() : base("Wither Skeleton", health: 25, damage: 25, defence: 1) { } }
-public class Blaze : BaseEnemy { public Blaze() : base("Blaze", health: 40, damage: 15, defence: 5) { } }
-
 
 public class GoldNugget : QuestItem
 { 
@@ -35,19 +31,42 @@ public class WitherScythe : ArtifactWeapon
     public override Attributes GetAttributes() => new Attributes(power: 15, aggression: 20, health: -20, luck: -10);
 }
 
+public class NetherGenerationStrategy : IMapGenerationStrategy
+{
+    public void Generate(IMapBuilder builder)
+    {
+        MapDirector director = new();
+        director.BuildNetherMap(builder);
+    }
+}
 
 public class NetherFactory : IThemeFactory
 {
+    public IMapGenerationStrategy GetStrategy() => new EndGenerationStrategy();
+    
+    private readonly SpeciesFaction _piglinFaction = new SpeciesFaction();
+    private readonly SpeciesFaction _witherSkeletonFaction = new SpeciesFaction();
+    private readonly SpeciesFaction _blazeFaction = new SpeciesFaction();
+    
     private static readonly Random _rng = new Random();
 
     public string GetWelcomeMessage() => "Piekielne gorąco bije od ścian... Słyszysz grzechot kości Withera...";
 
-    public IEnemy CreateEnemy() => _rng.Next(3) switch
+    public List<IEnemy> CreateEnemyGroup(ISoundPublisher soundPublisher)
     {
-        0 => new Piglin(),
-        1 => new WitherSkeleton(),
-        _ => new Blaze()
-    };
+        List<IEnemy> group = new List<IEnemy>();
+        int roll = _rng.Next(3);
+        int groupSize = _rng.Next(2, 5); 
+        
+        for (int i = 0; i < groupSize; i++)
+        {
+            if (roll == 0) group.Add(new Piglin(_piglinFaction, soundPublisher));
+            else if (roll == 1) group.Add(new WitherSkeleton(_witherSkeletonFaction, soundPublisher));
+            else group.Add(new Blaze(_blazeFaction, soundPublisher));
+        }
+        return group;
+    }
+
 
     public IItem CreateItem() => _rng.Next(4) switch
     {
@@ -66,24 +85,4 @@ public class NetherFactory : IThemeFactory
     };
 
     public IItem CreateArtifact() => new WitherScythe();
-}
-
-public class NetherGenerationStrategy : IMapGenerationStrategy
-{
-    public void Generate(IMapBuilder builder)
-    {
-        MapDirector director = new();
-        director.BuildLabirynth(builder);
-        
-        /*builder
-            .BuildEmpty()
-            .FillWithWalls()
-            .AddCorridors()
-            .AddCorridors()
-            .AddRooms(6, 3)
-            .AddItems(5)
-            .AddWeapons(4)
-            .AddEnemies(9)
-            .AddArtifact(); */
-    }
 }

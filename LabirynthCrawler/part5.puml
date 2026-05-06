@@ -1,0 +1,96 @@
+﻿@startuml
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+
+title Etap 5
+
+package "Model.Observers" {
+    interface ISoundObserver {
+        + OnSoundHeard(sourceX: int, sourceY: int, distance: int, sourceName: String)
+    }
+
+    interface ISoundPublisher {
+        + Attach(observer: ISoundObserver)
+        + Detach(observer: ISoundObserver)
+        + NotifySound(sourceX: int, sourceY: int, range: int, sourceName: String)
+    }
+
+    interface IDeathObserver {
+        + OnAllyDeath()
+    }
+
+    interface ISpeciesPublisher {
+        + Attach(observer: IDeathObserver)
+        + Detach(observer: IDeathObserver)
+        + NotifyDeath()
+    }
+}
+
+package "Model.Enemies" {
+    abstract class BaseEnemy {
+        - _speciesPublisher: ISpeciesPublisher
+        - _soundPublisher: ISoundPublisher
+        + BaseEnemy(speciesPub: ISpeciesPublisher, soundPub: ISoundPublisher, ...)
+        + OnSoundHeard(sourceX: int, sourceY: int, distance: int, sourceName: String)
+        + OnAllyDeath()
+        + DecreaseHealth(damage: int)
+        # {abstract} HandleAllyDeath()
+        + MoveRandomly(map: Map)
+    }
+
+    class Zombie {
+        # HandleAllyDeath() <<weakens stats>>
+    }
+
+    class Skeleton {
+        # HandleAllyDeath() <<buffs stats>>
+    }
+}
+
+package "Model.Managers" {
+    class SoundManager {
+        - _observers: List<ISoundObserver>
+        - _map: Map
+        + SoundManager(map: Map)
+        + Attach(observer: ISoundObserver)
+        + Detach(observer: ISoundObserver)
+        + NotifySound(sourceX: int, sourceY: int, range: int, sourceName: String)
+        - CalculatePathDistance(startX: int, startY: int, targetX: int, targetY: int) : int
+    }
+
+    class SpeciesFaction {
+        - _observers: List<IDeathObserver>
+        - _speciesName: String
+        + Attach(observer: IDeathObserver)
+        + Detach(observer: IDeathObserver)
+        + NotifyDeath()
+    }
+}
+
+class Player {
+    - _soundPublisher: ISoundPublisher
+    + PickUpItem() <<calls NotifySound>>
+}
+
+class CombatManager {
+    + ResolveCombat(...) <<calls publisher.NotifyDeath() on enemy death>>
+}
+
+ISoundObserver <|.. BaseEnemy
+IDeathObserver <|.. BaseEnemy
+
+ISoundPublisher <|.. SoundManager
+ISpeciesPublisher <|.. SpeciesFaction
+
+BaseEnemy <|-- Zombie
+BaseEnemy <|-- Skeleton
+
+BaseEnemy "1" --> "1" ISoundPublisher : uses for Detach
+BaseEnemy "1" --> "1" ISpeciesPublisher : uses for Detach
+
+SoundManager o--> "*" ISoundObserver : notifies
+SpeciesFaction o--> "*" IDeathObserver : notifies
+
+Player --> ISoundPublisher : broadcasts sounds
+CombatManager ..> BaseEnemy : causes death
+@enduml

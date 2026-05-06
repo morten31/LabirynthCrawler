@@ -22,4 +22,6 @@ public abstract class ItemBase : IItem
     public override string ToString() => Name; 
     
     public virtual (int Damage, int Defense) Accept(IAttackVisitor visitor) => visitor.Visit(this);
+
+    public virtual int GetSoundRange() => 0;
 }

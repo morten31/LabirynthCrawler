@@ -11,6 +11,6 @@ public interface IItem
     void OnPickUp(Player player);
     Attributes GetAttributes(); 
     public string ToString();
-    
     (int Damage, int Defense) Accept(IAttackVisitor visitor);
+    int GetSoundRange();
 }

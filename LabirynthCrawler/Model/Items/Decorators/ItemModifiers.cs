@@ -24,4 +24,5 @@ public abstract class WeaponDecorator : IWeapon
     
     public virtual (int Damage, int Defense) Accept(IAttackVisitor visitor) 
         => _weapon.Accept(visitor);
+    public virtual int GetSoundRange() => _weapon.GetSoundRange();
 }

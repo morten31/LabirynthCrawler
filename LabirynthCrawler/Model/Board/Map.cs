@@ -40,4 +40,17 @@ public class Map
             _map[y, x].AddEnemy(enemy);
         }
     }
+    
+    public List<IEnemy> GetAllEnemies()
+    {
+        List<IEnemy> all = new();
+        for (int y = 0; y < Height; y++)
+        {
+            for (int x = 0; x < Width; x++)
+            {
+                all.AddRange(_map[y, x].GetEnemies());
+            }
+        }
+        return all;
+    }
 }

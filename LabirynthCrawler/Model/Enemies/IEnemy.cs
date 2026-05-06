@@ -1,4 +1,6 @@
-﻿namespace LabirynthCrawler.Model.Enemies;
+﻿using LabirynthCrawler.Model.Board;
+
+namespace LabirynthCrawler.Model.Enemies;
 
 public interface IEnemy
 {
@@ -12,4 +14,6 @@ public interface IEnemy
     public void DecreaseHealth(int damage);
     public int GetMaxHealth();
     public void SetPosition(int x, int y);
+    void HandleOwnDeath();
+    void MoveRandomly(Map map); 
 }

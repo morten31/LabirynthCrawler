@@ -6,6 +6,7 @@ using LabirynthCrawler.Model.Logger;
 using LabirynthCrawler.Model.MapGeneration;
 using LabirynthCrawler.Model.PlayerModel;
 using LabirynthCrawler.Model.MapGeneration;
+using LabirynthCrawler.Model.Observers;
 using LabirynthCrawler.Model.Themes;
 
 namespace LabirynthCrawler.Model;
@@ -34,40 +35,36 @@ public class GameModel
     
     public void InitializeGame(int startX, int startY, string themeName)
     {
-        _player = new Player((startX, startY));
+        var soundManager = new SoundManager();
+        _player = new Player((startX, startY), soundManager);
         _instructionBuilder = new InstructionBuilder();
         
-        IThemeFactory factory;
-        IMapGenerationStrategy strategy;
-
-        switch (themeName.ToLower())
+        IThemeFactory factory = themeName.ToLower() switch
         {
-            case "overworld":
-                factory = new OverworldFactory();
-                strategy = new OverworldGenerationStrategy();
-                break;
-            case "nether":
-                factory = new NetherFactory();
-                strategy = new NetherGenerationStrategy();
-                break;
-            case "end":
-                factory = new EndFactory();
-                strategy = new EndGenerationStrategy();
-                break;
-            default:
-                factory = new OverworldFactory(); 
-                strategy = new OverworldGenerationStrategy();
-                break;
-        }
+            "nether" => new NetherFactory(),
+            "end" => new EndFactory(),
+            _ => new OverworldFactory()
+        };
         
-        var builder = new MapBuilder(startX, startY, factory);
+        var builder = new MapBuilder(startX, startY, factory, soundManager);
 
+        IMapGenerationStrategy strategy = factory.GetStrategy();
         strategy.Generate(builder);
         strategy.Generate(_instructionBuilder);
         
         _map = builder.GetMap();
+        soundManager.Initialize(_map);
         
-        GameLogger.Instance.Log($"--- {factory.GetWelcomeMessage()} ---");
+        GameLogger.Instance.Log($"-- {factory.GetWelcomeMessage()} --");
+    }
+    
+    public void AdvanceTurn()
+    {
+        var allEnemies = _map.GetAllEnemies().ToList();
+        foreach (var enemy in allEnemies)
+        {
+            enemy.MoveRandomly(_map);
+        }
     }
 
     public void MovePlayer(Direction dir)
@@ -92,6 +89,7 @@ public class GameModel
             else
             {
                 _player.MoveTo(newX, newY);
+                AdvanceTurn();
             }
         }
     }
@@ -107,6 +105,7 @@ public class GameModel
         IItem item = tile.GetTileItems.First();
         item.OnPickUp(_player);
         tile.RemoveItem(tile.GetTileItems.IndexOf(item));
+        _player.MakeNoise(item);
         GameLogger.Instance.Log($"Picked up item: {item.Name}");
         return true;
     }
@@ -156,12 +155,12 @@ public class GameModel
 
         if (result.IsEnemyDead)
         {
-            GameLogger.Instance.Log($"{enemy.ToString()} was killed!");
+            GameLogger.Instance.Log($"[COMBAT]{enemy.ToString()} was killed!");
             currentTile.RemoveDeadEnemies();
         }
         else
         {
-            GameLogger.Instance.Log($"{enemy.ToString()} hit back for {result.DamageReceived} dmg.");
+            GameLogger.Instance.Log($"[COMBAT]{enemy.ToString()} hit back for {result.DamageReceived} dmg.");
         }
 
         if (result.IsPlayerDead)

@@ -52,9 +52,15 @@ public class CombatManager
             IsEnemyDead = isEnemyDead,
             IsPlayerDead = player.GetTotalAttributes().Health - damageToPlayer <= 0
         };
-
+        
         enemy.DecreaseHealth(result.DamageDealt);
-        if (!result.IsEnemyDead)
+        
+        
+        if (result.IsEnemyDead)
+        {
+            enemy.HandleOwnDeath();
+        }
+        else 
         {
             player.GetAttributes().Health -= result.DamageReceived;
         }

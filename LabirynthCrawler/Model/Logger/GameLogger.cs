@@ -23,7 +23,6 @@ public class GameLogger
         string logEntry = $"[{DateTime.Now:HH:mm:ss}] {message}";
 
         _logs.Add(message);
-
         _writer?.Write(logEntry);
     }
 
