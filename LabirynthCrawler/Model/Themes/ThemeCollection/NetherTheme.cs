@@ -71,8 +71,8 @@ public class NetherFactory : IThemeFactory
     public IItem CreateItem() => _rng.Next(4) switch
     {
         0 => new GoldNugget(),
-        1 => new Coin(_rng.Next(15)),
-        2 => new Gold(_rng.Next(5)),
+        1 => new Coin(_rng.Next(1, 16)),
+        2 => new Gold(_rng.Next(1, 6)),
         _ => new NetherQuartz()
         
     };

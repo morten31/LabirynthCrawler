@@ -1,4 +1,5 @@
 ﻿using LabirynthCrawler.Model;
+using LabirynthCrawler.Model.Network;
 
 namespace LabirynthCrawler.Controller.InputHandling;
 
@@ -11,13 +12,11 @@ public abstract class BaseHandler
         _next = next;
     }
 
-    public virtual bool Handle(ConsoleKeyInfo key, GameModel model)
+    public virtual bool Handle(PlayerActionDto action, GameModel model)
     {
         if (_next != null)
-        {
-            return _next.Handle(key, model);
-        }
-
+            return _next.Handle(action, model);
+        
         return true;
     }
 }

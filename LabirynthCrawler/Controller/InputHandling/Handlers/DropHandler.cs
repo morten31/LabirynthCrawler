@@ -1,23 +1,17 @@
 ﻿using LabirynthCrawler.Model;
+using LabirynthCrawler.Model.Network;
 
 namespace LabirynthCrawler.Controller.InputHandling.Handlers;
 
 public class DropHandler : BaseHandler
 {
-    public override bool Handle(ConsoleKeyInfo key, GameModel model)
+    public override bool Handle(PlayerActionDto action, GameModel model)
     {
-        if (KeyBindings.Matches(key, GameAction.Drop))
+        if (action.ActionType == "Drop")
         {
-            ConsoleKeyInfo key2 = Console.ReadKey(true);
-
-            if (char.IsDigit(key2.KeyChar))
-            {
-                int index = int.Parse(key2.KeyChar.ToString());
-                
-                if(model.DropItem(index))
-                    return true; 
-            }
+            model.DropItem(action.PlayerId, action.TargetIndex);
+            return true;
         }
-        return base.Handle(key, model);
+        return base.Handle(action, model);
     }
 }

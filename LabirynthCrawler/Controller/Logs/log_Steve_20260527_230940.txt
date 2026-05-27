@@ -1,0 +1,13 @@
+[23:09:40] Starting as SERVER on port 5555...
+[23:09:40] -- Zapach trawy i drewna wypełnia powietrze. Słyszysz muzykę... --
+[23:09:40] Listening on port 5555 active.
+[23:11:26] Player 2 joined The Game.
+[23:11:47] Picked up item: 0x Gold
+[23:11:52] Picked up item: 0x Gold
+[23:11:54] Picked up item: Bow (10) (Strong) (Strong)
+[23:12:26] Picked up item: 4x Coin
+[23:18:47] Player 2 left The Game.
+[23:19:44] Player 3 joined The Game.
+[23:19:54] Player 3 left The Game.
+[23:20:10] Player 4 joined The Game.
+[23:20:26] Player 4 left The Game.

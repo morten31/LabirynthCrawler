@@ -15,9 +15,15 @@ namespace LabirynthCrawler.Model;
 public enum Direction{ Up, Down, Left, Right }
 public class GameModel
 {
+    public readonly object StateLock = new object();
+
     private Map _map { get; set; } = new Map();
+    
+    private Dictionary<int, Player> _players = new Dictionary<int, Player>();
+    public IReadOnlyDictionary<int, Player> Players => _players;
+    
     private Player _player;
-    public Player GetPlayer() => _player;
+    public Player? GetPlayer(int playerId) => _players.ContainsKey(playerId) ? _players[playerId] : null;
     public Map GetMap() => _map;
     InstructionBuilder _instructionBuilder;
     public InstructionBuilder GetInstructionBuilder() => _instructionBuilder;
@@ -36,7 +42,7 @@ public class GameModel
     public void InitializeGame(int startX, int startY, string themeName)
     {
         var soundManager = new SoundManager();
-        _player = new Player((startX, startY), soundManager);
+        _players[1] = new Player((startX, startY), soundManager);
         _instructionBuilder = new InstructionBuilder();
         
         IThemeFactory factory = themeName.ToLower() switch
@@ -58,19 +64,44 @@ public class GameModel
         GameLogger.Instance.Log($"-- {factory.GetWelcomeMessage()} --");
     }
     
-    public void AdvanceTurn()
+    public void AddPlayer(int playerId, int x, int y)
     {
-        var allEnemies = _map.GetAllEnemies().ToList();
-        foreach (var enemy in allEnemies)
+        var soundManager = new SoundManager();
+        soundManager.Initialize(_map);
+        _players[playerId] = new Player((x, y), soundManager);
+    }
+    
+    public void RemovePlayer(int playerId)
+    {
+        lock (StateLock)
         {
-            enemy.MoveRandomly(_map);
+            if (_players.ContainsKey(playerId))
+            {
+                _players.Remove(playerId);
+            }
+        }
+    }
+    
+    public void Tick()
+    {
+        lock (StateLock)
+        {
+            var allEnemies = _map.GetAllEnemies().ToList();
+            foreach (var enemy in allEnemies)
+            {
+                enemy.MoveRandomly(_map);
+            }
         }
     }
 
-    public void MovePlayer(Direction dir)
+    public void MovePlayer(int playerId, Direction dir)
     {
-        int oldX = _player.GetX();
-        int oldY = _player.GetY();
+        if (!_players.ContainsKey(playerId)) return;
+        Player p = _players[playerId];
+
+        
+        int oldX = p.GetX();
+        int oldY = p.GetY();
 
         (int newX, int newY) = dir switch
         {
@@ -84,89 +115,132 @@ public class GameModel
         {
             if (_map.GetTile(newX, newY).IsWall())
             {
-                GameLogger.Instance.Log("Failed! A wall is on the way!");
+                GameLogger.Instance.Log("Failed! A wall is on the way!", LogLevel.Trace, playerId);
             }
             else
             {
-                _player.MoveTo(newX, newY);
-                AdvanceTurn();
+                p.MoveTo(newX, newY);
             }
         }
     }
 
-    public bool PickUpItem()
+    public bool PickUpItem(int playerId)
     {
-        Tile tile = _map.GetTile(_player.GetX(), _player.GetY());
-        if (tile.GetTileItems.Count <= 0)
+        lock (StateLock)
         {
-            GameLogger.Instance.Log("No item to pick up!");
-            return false;
+            if (!_players.ContainsKey(playerId)) return false;
+            Player p = _players[playerId];
+            if (p.IsDead) return false;
+
+            Tile tile = _map.GetTile(p.GetX(), p.GetY());
+            if (tile.GetTileItems.Count <= 0)
+            {
+                GameLogger.Instance.Log("No item to pick up!", LogLevel.Trace, playerId);
+                return false;
+            }
+
+            IItem item = tile.GetTileItems.First();
+            item.OnPickUp(p);
+            tile.RemoveItem(tile.GetTileItems.IndexOf(item));
+            p.MakeNoise(item);
+            GameLogger.Instance.Log($"Picked up item: {item.Name}", LogLevel.Info, playerId);
+            return true;
         }
-        IItem item = tile.GetTileItems.First();
-        item.OnPickUp(_player);
-        tile.RemoveItem(tile.GetTileItems.IndexOf(item));
-        _player.MakeNoise(item);
-        GameLogger.Instance.Log($"Picked up item: {item.Name}");
-        return true;
     }
 
-    public bool DropItem(int inIdx)
+    public bool DropItem(int playerId, int inIdx)
     {
-        int idx = inIdx - 1;
-        Inventory inventory = _player.GetInventory();
-        if (idx < 0 || inventory.GetItemCount() < idx + 1)
-            return false;
-        
-        IItem item = inventory.RemoveFromInventory(idx);
-        _map.AddItem(_player.GetX(), _player.GetY(), item);
-        GameLogger.Instance.Log($"Dropped item: {item.Name}");
-        return true;
+        lock (StateLock)
+        {
+            if (!_players.ContainsKey(playerId)) return false;
+            Player p = _players[playerId];
+            if (p.IsDead) return false;
+            
+            int idx = inIdx - 1;
+            Inventory inventory = p.GetInventory();
+            if (idx < 0 || inventory.GetItemCount() < idx + 1)
+                return false;
+            
+            IItem item = inventory.RemoveFromInventory(idx);
+            _map.AddItem(p.GetX(), p.GetY(), item);
+            GameLogger.Instance.Log($"Dropped item: {item.Name}");
+            return true;
+        }
     }
 
-    public bool EquipItem(char hand, int inIdx)
+    public bool EquipItem(int playerId, char hand, int inIdx)
     {
-        int idx = inIdx - 1;
-        Inventory inventory = _player.GetInventory();
-        if (idx < 0 || inventory.GetItemCount() < idx + 1)
-            return false;
-                
-        inventory.EquipItem(hand, idx);
-        return true;
+        lock (StateLock)
+        {
+            if (!_players.ContainsKey(playerId)) return false;
+            Player p = _players[playerId];
+            if (p.IsDead) return false;
+
+
+            int idx = inIdx - 1;
+            Inventory inventory = p.GetInventory();
+            if (idx < 0 || inventory.GetItemCount() < idx + 1)
+                return false;
+
+            inventory.EquipItem(hand, idx);
+            
+            GameLogger.Instance.Log($"Equipped item in hand", LogLevel.Info, playerId);
+            return true;
+        }
     }
 
-    public void PerformAttack(int attackType)
+    public void PerformAttack(int playerId, int attackType)
     {
-        if (IsGameOver) return;
-
-        Tile currentTile = GetMap().GetTile(_player.GetX(), _player.GetY());
-        List<IEnemy> enemies = currentTile.GetEnemies();
-
-        if (enemies.Count == 0)
+        lock (StateLock)
         {
-            GameLogger.Instance.Log("There are no enemies to attack!");
-            return;
-        }
+            if (!_players.ContainsKey(playerId)) return;
+            Player p = _players[playerId];
+            if (p.IsDead) return;
+            
+            Tile currentTile = GetMap().GetTile(p.GetX(), p.GetY());
+            List<IEnemy> enemies = currentTile.GetEnemies();
 
-        IEnemy enemy = enemies[0];
-        CombatSystem combat = new CombatSystem(_player, enemy);
-        CombatResult result = combat.AttackEnemy(attackType);
+            if (enemies.Count == 0)
+            {
+                GameLogger.Instance.Log("There are no enemies to attack!", LogLevel.Trace, playerId);
+                return;
+            }
 
-        GameLogger.Instance.Log($"[COMBAT] You dealt {result.DamageDealt} dmg to {enemy.ToString()}. ");
+            IEnemy enemy = enemies[0];
+            CombatSystem combat = new CombatSystem(p, enemy);
+            CombatResult result = combat.AttackEnemy(attackType);
 
-        if (result.IsEnemyDead)
-        {
-            GameLogger.Instance.Log($"[COMBAT]{enemy.ToString()} was killed!");
-            currentTile.RemoveDeadEnemies();
-        }
-        else
-        {
-            GameLogger.Instance.Log($"[COMBAT]{enemy.ToString()} hit back for {result.DamageReceived} dmg.");
-        }
+            GameLogger.Instance.Log($"You dealt {result.DamageDealt} dmg to {enemy.ToString()}.", LogLevel.Combat, playerId);
 
-        if (result.IsPlayerDead)
-        {
-            GameLogger.Instance.Log("YOU DIED! Game Over. Press ESC to quit.");
-            CurrentState = GameState.GameOver;
+            if (result.IsPlayerDead)
+            {
+                GameLogger.Instance.Log($"Player {playerId} was killed by {enemy.ToString()}!", LogLevel.System);
+    
+                GameLogger.Instance.Log("YOU DIED! Spectating mode.", LogLevel.System, playerId);
+    
+                p.IsDead = true;
+
+                if (_players.Values.All(player => player.IsDead))
+                {
+                    GameLogger.Instance.Log("All players dead! Ending Game...", LogLevel.System);
+                    CurrentState = GameState.GameOver;
+                }
+            }
+            else
+            {
+                GameLogger.Instance.Log($"{enemy.ToString()} hit back for {result.DamageReceived} dmg.", LogLevel.Combat, playerId);
+            }
+
+            if (result.IsPlayerDead)
+            {
+                GameLogger.Instance.Log("YOU DIED! Spectating mode.", LogLevel.System, playerId);
+                p.IsDead = true;
+
+                if (_players.Values.All(player => player.IsDead))
+                {
+                    GameLogger.Instance.Log("All players dead! Ending Game...", LogLevel.System);
+                    CurrentState = GameState.GameOver;
+                }            }
         }
     }
 }

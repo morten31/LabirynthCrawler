@@ -1,0 +1,42 @@
+[00:42:16] [SERVER] Starting as SERVER on port 5555...
+[00:42:16] [SERVER] -- Zapach trawy i drewna wypełnia powietrze. Słyszysz muzykę... --
+[00:42:16] [SERVER] Listening on port 5555 active.
+[00:42:17] [SERVER] Player 2 joined The Game.
+[00:42:24] [P2] Picked up item: Emerald
+[00:42:26] [P2] Equipped item in hand
+[00:42:38] [P2] Equipped item in hand
+[00:42:41] [P2] Equipped item in hand
+[00:42:49] [P2] Picked up item: Golden Apple
+[00:42:52] [P2] Picked up item: Emerald
+[00:43:07] [P2] Picked up item: Wooden Axe (8) (Strong)
+[00:43:11] [P2] Equipped item in hand
+[00:43:16] [P2] You dealt 33 dmg to Skeleton (0/20).
+[00:43:16] [P2] Skeleton (0/20) hit back for 0 dmg.
+[00:43:23] [P2] You dealt 33 dmg to Skeleton (0/20).
+[00:43:23] [P2] Skeleton (0/20) hit back for 0 dmg.
+[00:43:25] [P2] You dealt 33 dmg to Skeleton (0/20).
+[00:43:25] [P2] Skeleton (0/20) hit back for 0 dmg.
+[00:43:26] [P2] You dealt 33 dmg to Skeleton (0/20).
+[00:43:26] [P2] Skeleton (0/20) hit back for 0 dmg.
+[00:43:27] [P2] You dealt 33 dmg to Skeleton (0/20).
+[00:43:27] [P2] Skeleton (0/20) hit back for 0 dmg.
+[00:43:27] [P2] You dealt 33 dmg to Skeleton (0/20).
+[00:43:27] [P2] Skeleton (0/20) hit back for 0 dmg.
+[00:43:30] [P2] You dealt 33 dmg to Skeleton (0/20).
+[00:43:30] [P2] Skeleton (0/20) hit back for 0 dmg.
+[00:43:31] [P2] You dealt 33 dmg to Skeleton (0/20).
+[00:43:31] [P2] Skeleton (0/20) hit back for 0 dmg.
+[00:43:51] [P2] You dealt 33 dmg to Skeleton (0/20).
+[00:43:51] [P2] Skeleton (0/20) hit back for 0 dmg.
+[00:43:52] [P2] You dealt 33 dmg to Skeleton (0/20).
+[00:43:52] [P2] Skeleton (0/20) hit back for 0 dmg.
+[00:43:53] [P2] You dealt 33 dmg to Skeleton (0/20).
+[00:43:53] [P2] Skeleton (0/20) hit back for 0 dmg.
+[00:43:53] [P2] You dealt 33 dmg to Skeleton (0/20).
+[00:43:53] [P2] Skeleton (0/20) hit back for 0 dmg.
+[00:43:53] [P2] You dealt 33 dmg to Skeleton (0/20).
+[00:43:53] [P2] Skeleton (0/20) hit back for 0 dmg.
+[00:44:46] [SERVER] Player 2 left The Game.
+[00:44:51] [SERVER] Player 2 joined The Game.
+[00:45:08] [SERVER] Player 3 joined The Game.
+[00:45:12] [SERVER] Player 3 left The Game.

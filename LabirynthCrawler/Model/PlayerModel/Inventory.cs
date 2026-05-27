@@ -24,7 +24,7 @@ public class Inventory
     public int GetItemCount() => _itemList.Count;
     
     public IReadOnlyList<IItem> GetItems() => _itemList;
-    public void EquipItem(char hand, int idx)
+    public bool EquipItem(char hand, int idx)
     {
         IItem item = _itemList[idx];
         if (item.IsTwoHanded())
@@ -33,8 +33,7 @@ public class Inventory
             UnEquipItem('R');
             _rightHand = item;
             _leftHand = item;
-            GameLogger.Instance.Log($"Equipped item in both hands: {item.Name}");
-            return;
+            return true;
         }
         UnEquipItem(hand);
         if (hand == 'L')
@@ -42,15 +41,15 @@ public class Inventory
             if (_rightHand == item)
                 UnEquipItem('R');
             _leftHand = item;
-            GameLogger.Instance.Log($"Equipped item {item.Name} in left hand");
         }
         else
         {
             if (_leftHand == item)
                 UnEquipItem('L');
             _rightHand = item;
-            GameLogger.Instance.Log($"Equipped item {item.Name} in right hand");
         }
+
+        return true;
     }
 
     public void UnEquipItem(char hand)

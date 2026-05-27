@@ -1,18 +1,15 @@
 ﻿using LabirynthCrawler.Model;
+using LabirynthCrawler.Model.Network;
 
 namespace LabirynthCrawler.Controller.InputHandling.Handlers;
 
 public class StartEndHandler : BaseHandler
 {
-    public override bool Handle(ConsoleKeyInfo key, GameModel model)
+    public override bool Handle(PlayerActionDto action, GameModel model)
     {
-        if (KeyBindings.Matches(key, GameAction.Quit))
-        {
-            return false;
-        }
-
+        if (action.ActionType == "Quit") return false;
         if (model.CurrentState == GameModel.GameState.GameOver) return true;
         
-        return base.Handle(key, model);
+        return base.Handle(action, model);
     }
 }

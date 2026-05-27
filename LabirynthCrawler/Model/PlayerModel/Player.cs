@@ -10,7 +10,8 @@ public class Player((int, int) startPosition, ISoundPublisher soundPublisher)
     private int _y = startPosition.Item2;
     private ISoundPublisher _soundPublisher = soundPublisher;
     private Inventory _inventory = new Inventory();
-    
+    public bool IsViewingLog { get; set; } = false;
+
     
     public int GetX() => _x;
     public int GetY() => _y;
@@ -19,6 +20,7 @@ public class Player((int, int) startPosition, ISoundPublisher soundPublisher)
     public void AddItem(IItem item) => _inventory.AddToInventory(item);
     public Attributes GetAttributes() => _attributes;
     public Attributes GetTotalAttributes() => _attributes.Add(_inventory.GetEquippedAttributes());
+    public bool IsDead { get; set; } = false;
     
     public void MakeNoise(IItem item)
     {

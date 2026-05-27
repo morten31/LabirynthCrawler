@@ -1,5 +1,13 @@
 ﻿namespace LabirynthCrawler.Model.Logger;
 
+public enum LogLevel
+{
+    Trace,
+    Info,
+    Combat,
+    System
+}
+
 public interface ILogWriter
 {
     void Write(string message);

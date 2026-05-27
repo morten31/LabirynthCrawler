@@ -1,21 +1,17 @@
 ﻿using LabirynthCrawler.Model;
+using LabirynthCrawler.Model.Network;
+
 namespace LabirynthCrawler.Controller.InputHandling.Handlers;
 public class MoveHandler : BaseHandler
 {
-    public override bool Handle(ConsoleKeyInfo key, GameModel model)
+    public override bool Handle(PlayerActionDto action, GameModel model)
     {
-        Direction? dir = null;
-
-        if (KeyBindings.Matches(key, GameAction.MoveUp)) dir = Direction.Up;
-        else if (KeyBindings.Matches(key, GameAction.MoveDown)) dir = Direction.Down;
-        else if (KeyBindings.Matches(key, GameAction.MoveLeft)) dir = Direction.Left;
-        else if (KeyBindings.Matches(key, GameAction.MoveRight)) dir = Direction.Right;
-
-        if (dir != null)
+        if (action.ActionType == "Move")
         {
-            model.MovePlayer(dir.Value);
+            if (Enum.TryParse<Direction>(action.Direction, out var dir))
+                model.MovePlayer(action.PlayerId, dir);
             return true;
         }
-        return base.Handle(key, model);
+        return base.Handle(action, model);
     }
 }

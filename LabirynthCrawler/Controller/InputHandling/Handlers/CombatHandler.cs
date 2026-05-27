@@ -1,31 +1,18 @@
 ﻿using LabirynthCrawler.Model;
+using LabirynthCrawler.Model.Network;
 
 namespace LabirynthCrawler.Controller.InputHandling.Handlers;
 
 
 public class CombatHandler : BaseHandler
 {
-    public override bool Handle(ConsoleKeyInfo key, GameModel model)
+    public override bool Handle(PlayerActionDto action, GameModel model)
     {
-        if (model.CurrentState == GameModel.GameState.GameOver)
-            return base.Handle(key, model);
-
-        if (KeyBindings.Matches(key, GameAction.AttackNormal))
+        if (action.ActionType == "Attack")
         {
-            model.PerformAttack(1);
+            model.PerformAttack(action.PlayerId, action.TargetIndex);
             return true;
         }
-        if (KeyBindings.Matches(key, GameAction.AttackStealth))
-        {
-            model.PerformAttack(2);
-            return true;
-        }
-        if (KeyBindings.Matches(key, GameAction.AttackMagic))
-        {
-            model.PerformAttack(3);
-            return true;
-        }
-
-        return base.Handle(key, model);
+        return base.Handle(action, model);
     }
 }

@@ -1,16 +1,17 @@
 ﻿using LabirynthCrawler.Model;
+using LabirynthCrawler.Model.Network;
 
 namespace LabirynthCrawler.Controller.InputHandling.Handlers;
 
 public class PickUpHandler : BaseHandler
 {
-    public override bool Handle(ConsoleKeyInfo key, GameModel model)
+    public override bool Handle(PlayerActionDto action, GameModel model)
     {
-        if (KeyBindings.Matches(key, GameAction.PickUp))
+        if (action.ActionType == "PickUp")
         {
-            model.PickUpItem();
+            model.PickUpItem(action.PlayerId);
             return true;
         }
-        return base.Handle(key, model);
+        return base.Handle(action, model);
     }
 }

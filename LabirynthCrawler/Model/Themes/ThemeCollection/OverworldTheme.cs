@@ -55,8 +55,8 @@ public class OverworldFactory : IThemeFactory
     public IItem CreateItem() => _rng.Next(4) switch
     {
         0 => new Emerald(),
-        1 => new Coin(_rng.Next(10)),
-        2 => new Gold(_rng.Next(3)),
+        1 => new Coin(_rng.Next(1, 11)),
+        2 => new Gold(_rng.Next(1, 4)),
         _ => new GoldenApple()
     };
 

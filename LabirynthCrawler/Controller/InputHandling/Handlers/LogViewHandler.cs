@@ -1,27 +1,21 @@
 ﻿using LabirynthCrawler.Model;
+using LabirynthCrawler.Model.Network;
 
 namespace LabirynthCrawler.Controller.InputHandling.Handlers;
 
 public class LogViewHandler : BaseHandler
 {
-    public override bool Handle(ConsoleKeyInfo key, GameModel model)
+    public override bool Handle(PlayerActionDto action, GameModel model)
     {
-        if (KeyBindings.Matches(key, GameAction.ToggleLog))
+        if (action.ActionType == "ToggleLog" || action.ActionType == "Escape")
         {
-            if (model.CurrentState == GameModel.GameState.Playing)
-                model.CurrentState = GameModel.GameState.ViewingLog;
-            else if (model.CurrentState == GameModel.GameState.ViewingLog)
-                model.CurrentState = GameModel.GameState.Playing;
-            
+            var player = model.GetPlayer(action.PlayerId);
+            if (player != null)
+            {
+                player.IsViewingLog = !player.IsViewingLog;
+            }
             return true;
         }
-
-        if (model.CurrentState == GameModel.GameState.ViewingLog)
-        {
-            if (key.Key == ConsoleKey.Escape) model.CurrentState = GameModel.GameState.Playing;
-            return true; 
-        }
-
-        return base.Handle(key, model);
+        return base.Handle(action, model);
     }
 }
