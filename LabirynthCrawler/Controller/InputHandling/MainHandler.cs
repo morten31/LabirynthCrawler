@@ -36,10 +36,18 @@ public class MainHandler
             
             if (Console.KeyAvailable)
             {
-                PlayerActionDto? action = InputParser.ParseInput(localPlayerId, model.CurrentState.ToString());
+                var p = model.GetPlayer(localPlayerId);
+                string stateStr = model.CurrentState == GameModel.GameState.GameOver ? "GameOver" :
+                    (p != null && p.IsViewingLog ? "ViewingLog" : "Playing");
+                
+                PlayerActionDto? action = InputParser.ParseInput(localPlayerId, stateStr);
                 if (action != null)
                 {
-                    _shouldRun = _start.Handle(action, model);
+                    lock (model.StateLock)
+                    {
+                        _shouldRun = _start.Handle(action, model);
+                    }
+
                     stateChanged = true;
                 }
             }
@@ -50,7 +58,7 @@ public class MainHandler
                 onStateChanged?.Invoke(); 
             }
             
-            Thread.Sleep(1); 
+            Thread.Sleep(5); 
         }
     }
 

@@ -139,7 +139,10 @@ public class ServerHost
             lock (_clientsLock)
             {
                 _clients.Remove(playerId);
+                _model.RemovePlayer(playerId);
             }
+            
+
             GameLogger.Instance.Log($"Player {playerId} left The Game.", LogLevel.System);
             BroadcastState();
         }

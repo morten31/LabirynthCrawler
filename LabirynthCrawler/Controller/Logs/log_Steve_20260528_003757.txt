@@ -1,6 +1,0 @@
-[00:37:57] [SERVER] Starting as SERVER on port 5555...
-[00:37:57] [SERVER] -- Zapach trawy i drewna wypełnia powietrze. Słyszysz muzykę... --
-[00:37:57] [SERVER] Listening on port 5555 active.
-[00:38:06] [SERVER] Player 2 joined The Game.
-[00:38:57] [P2] Picked up item: Bow (10) (Strong)
-[00:38:58] [SERVER] Equipped item Bow (10) (Strong) in left hand

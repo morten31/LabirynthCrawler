@@ -212,12 +212,21 @@ public class GameModel
 
             GameLogger.Instance.Log($"You dealt {result.DamageDealt} dmg to {enemy.ToString()}.", LogLevel.Combat, playerId);
 
+            if (result.IsEnemyDead)
+            {
+                GameLogger.Instance.Log($"{enemy.ToString()} was killed!", LogLevel.Combat, playerId);
+                currentTile.RemoveDeadEnemies();
+            }
+            else if (!result.IsPlayerDead)
+            {
+                GameLogger.Instance.Log($"{enemy.ToString()} hit back for {result.DamageReceived} dmg.", LogLevel.Combat, playerId);
+            }
+
             if (result.IsPlayerDead)
             {
                 GameLogger.Instance.Log($"Player {playerId} was killed by {enemy.ToString()}!", LogLevel.System);
-    
                 GameLogger.Instance.Log("YOU DIED! Spectating mode.", LogLevel.System, playerId);
-    
+
                 p.IsDead = true;
 
                 if (_players.Values.All(player => player.IsDead))
@@ -226,21 +235,6 @@ public class GameModel
                     CurrentState = GameState.GameOver;
                 }
             }
-            else
-            {
-                GameLogger.Instance.Log($"{enemy.ToString()} hit back for {result.DamageReceived} dmg.", LogLevel.Combat, playerId);
-            }
-
-            if (result.IsPlayerDead)
-            {
-                GameLogger.Instance.Log("YOU DIED! Spectating mode.", LogLevel.System, playerId);
-                p.IsDead = true;
-
-                if (_players.Values.All(player => player.IsDead))
-                {
-                    GameLogger.Instance.Log("All players dead! Ending Game...", LogLevel.System);
-                    CurrentState = GameState.GameOver;
-                }            }
         }
     }
 }

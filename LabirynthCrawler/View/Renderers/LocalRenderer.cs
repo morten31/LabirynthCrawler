@@ -50,6 +50,8 @@ public class LocalRenderer : ConsoleRendererBase
 
             Console.SetCursorPosition(0, 0);
             _previousState = model.CurrentState;
+            
+            _previousStateString = "Playing"; 
         }
     }
 

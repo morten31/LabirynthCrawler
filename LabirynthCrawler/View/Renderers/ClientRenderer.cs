@@ -21,10 +21,11 @@ public class ClientRenderer : ConsoleRendererBase
 
         if (dto.CurrentState == "ViewingLog")
         {
-            Console.Clear();
-            Console.WriteLine("Logi z pełnej sesji są przetrzymywane na Serwerze.");
-            Console.WriteLine("Naciśnij ESC, aby wrócić do widoku gry.");
-            _previousStateString = dto.CurrentState;
+            if (_previousStateString != "ViewingLog")
+            {
+                RenderLogScreenHelper(dto.RecentLogs);
+                _previousStateString = "ViewingLog";
+            }
             return;
         }
 

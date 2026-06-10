@@ -13,6 +13,7 @@ public class ClientHost
     private int _myPlayerId;
     private ClientRenderer _renderer;
     private bool _isRunning = true;
+    private volatile string _currentState = "Playing";
 
     public ClientHost(string ip, int port)
     {
@@ -60,6 +61,7 @@ public class ClientHost
                         var gameState = JsonSerializer.Deserialize<GameStateDto>(stateJson);
                         if (gameState != null)
                         {
+                            _currentState = gameState.CurrentState;
                             _renderer.Render(gameState, _myPlayerId);
                         }
                     }
@@ -73,14 +75,23 @@ public class ClientHost
                 if (Console.KeyAvailable)
                 {
                     ConsoleKeyInfo key = Console.ReadKey(true);
-                    
-                    if (KeyBindings.Matches(key, GameAction.Quit))
+                    PlayerActionDto? action = null;
+
+                    if (_currentState == "ViewingLog" && (key.Key == ConsoleKey.Escape || KeyBindings.Matches(key, GameAction.ToggleLog)))
+                    {
+                        action = new PlayerActionDto { PlayerId = _myPlayerId, ActionType = "Escape" };
+
+                    }
+                    else if (KeyBindings.Matches(key, GameAction.Quit))
                     {
                         _isRunning = false;
                         break;
                     }
-
-                    PlayerActionDto? action = ParseKeyToAction(key);
+                    else
+                    {
+                        action = ParseKeyToAction(key);
+                    }
+                    
                     if (action != null)
                     {
                         writer.WriteLine(JsonSerializer.Serialize(action));

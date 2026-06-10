@@ -70,7 +70,15 @@ public static class StateMapper
                 };
             }
 
-            dto.RecentLogs = GameLogger.Instance.GetRecentLogs(5, targetPlayerId).ToList();
+            if (p != null && p.IsViewingLog)
+            {
+                dto.RecentLogs = GameLogger.Instance.GetAllLogs(targetPlayerId).ToList();
+            }
+            else
+            {
+                dto.RecentLogs = GameLogger.Instance.GetRecentLogs(5, targetPlayerId).ToList();
+            }
+            
             dto.ActionMessages = model.GetInstructionBuilder().GetCompleteMessages();
         }
 
