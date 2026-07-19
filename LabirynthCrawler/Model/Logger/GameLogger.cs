@@ -1,19 +1,22 @@
-﻿namespace LabirynthCrawler.Model.Logger;
+﻿using System.Collections.Concurrent;
+
+namespace LabirynthCrawler.Model.Logger;
 
 public class LogEntry 
 {
-    public string Text { get; set; }
+    public DateTime Timestamp { get; set; }
+    public string RawMessage { get; set; }
     public int? TargetPlayerId { get; set; }
+    public LogLevel Level { get; set; }
 }
 
 public class GameLogger
 {
     private static GameLogger? _instance;
     public static GameLogger Instance => _instance ??= new GameLogger();
-
     private readonly List<LogEntry> _logs = new();
-
     private ILogWriter? _writer;
+    public ConcurrentQueue<LogEntry> NetworkEventQueue { get; } = new();
 
     private GameLogger() { }
 
@@ -24,27 +27,35 @@ public class GameLogger
 
     public void Log(string message, LogLevel level = LogLevel.Info, int? playerId = null)
     {
-        string prefix = playerId.HasValue ? $"[P{playerId}] " : "[SERVER] ";
-        string logText = $"[{DateTime.Now:HH:mm:ss}] {prefix}{message}";
-    
-        _logs.Add(new LogEntry { Text = logText, TargetPlayerId = playerId });
-    
-        if (level != LogLevel.Trace) _writer?.Write(logText);
+        var entry = new LogEntry 
+        { 
+            Timestamp = DateTime.Now,
+            RawMessage = message, 
+            TargetPlayerId = playerId,
+            Level = level
+        };
+        _logs.Add(entry);
+        NetworkEventQueue.Enqueue(entry); 
+
+        if (level != LogLevel.Trace) 
+        {
+            _writer?.Write(entry);
+        }
     }
 
-    public IReadOnlyList<string> GetAllLogs(int? forPlayerId = null)
+    public IReadOnlyList<LogEntry> GetAllLogs(int? forPlayerId = null)
     {
         return _logs
             .Where(l => l.TargetPlayerId == null || l.TargetPlayerId == forPlayerId)
-            .Select(l => l.Text)
             .ToList().AsReadOnly();
     }
-    public IReadOnlyList<string> GetRecentLogs(int count, int? forPlayerId = null)
+    
+    public IReadOnlyList<LogEntry> GetRecentLogs(int count, int? forPlayerId = null)
     {
-        return _logs.Where(l => l.TargetPlayerId == null || l.TargetPlayerId == forPlayerId)
-                    .Select(l => l.Text)
-                    .TakeLast(count)
-                    .ToList().AsReadOnly();
+        return _logs
+            .Where(l => l.TargetPlayerId == null || l.TargetPlayerId == forPlayerId)
+            .TakeLast(count)
+            .ToList().AsReadOnly();
     }
 
     public string GetLogFileName()

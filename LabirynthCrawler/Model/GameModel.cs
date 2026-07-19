@@ -1,4 +1,5 @@
-﻿using LabirynthCrawler.Model.Board;
+﻿using System.Collections.Concurrent;
+using LabirynthCrawler.Model.Board;
 using LabirynthCrawler.Model.Combat;
 using LabirynthCrawler.Model.Enemies;
 using LabirynthCrawler.Model.Items;
@@ -8,6 +9,7 @@ using LabirynthCrawler.Model.PlayerModel;
 using LabirynthCrawler.Model.MapGeneration;
 using LabirynthCrawler.Model.Observers;
 using LabirynthCrawler.Model.Themes;
+using LabirynthCrawler.Model.Themes.ThemeCollection;
 
 namespace LabirynthCrawler.Model;
 
@@ -25,8 +27,7 @@ public class GameModel
     private Player _player;
     public Player? GetPlayer(int playerId) => _players.ContainsKey(playerId) ? _players[playerId] : null;
     public Map GetMap() => _map;
-    InstructionBuilder _instructionBuilder;
-    public InstructionBuilder GetInstructionBuilder() => _instructionBuilder;
+    private DateTime _lastEnemyMoveTime = DateTime.Now;
 
     public enum GameState
     {
@@ -43,20 +44,18 @@ public class GameModel
     {
         var soundManager = new SoundManager();
         _players[1] = new Player((startX, startY), soundManager);
-        _instructionBuilder = new InstructionBuilder();
         
         IThemeFactory factory = themeName.ToLower() switch
         {
-            "nether" => new NetherFactory(),
-            "end" => new EndFactory(),
-            _ => new OverworldFactory()
+            "nether" => new NetherFactory(soundManager),
+            "end" => new EndFactory(soundManager),
+            _ => new OverworldFactory(soundManager)
         };
         
         var builder = new MapBuilder(startX, startY, factory, soundManager);
 
         IMapGenerationStrategy strategy = factory.GetStrategy();
         strategy.Generate(builder);
-        strategy.Generate(_instructionBuilder);
         
         _map = builder.GetMap();
         soundManager.Initialize(_map);
@@ -86,10 +85,14 @@ public class GameModel
     {
         lock (StateLock)
         {
-            var allEnemies = _map.GetAllEnemies().ToList();
-            foreach (var enemy in allEnemies)
+            if ((DateTime.Now - _lastEnemyMoveTime).TotalMilliseconds >= 1000)
             {
-                enemy.MoveRandomly(_map);
+                var allEnemies = _map.GetAllEnemies().ToList();
+                foreach (var enemy in allEnemies)
+                {
+                    enemy.MoveRandomly(_map);
+                }
+                _lastEnemyMoveTime = DateTime.Now;
             }
         }
     }
@@ -168,7 +171,7 @@ public class GameModel
         }
     }
 
-    public bool EquipItem(int playerId, char hand, int inIdx)
+    public bool EquipItem(int playerId, HandSlot hand, int inIdx)
     {
         lock (StateLock)
         {

@@ -1,4 +1,5 @@
-﻿using LabirynthCrawler.Model.Network;
+﻿using LabirynthCrawler.Model.Logger;
+using LabirynthCrawler.Model.Network;
 
 namespace LabirynthCrawler.View.Renderers;
 
@@ -14,16 +15,17 @@ public class ClientRenderer : ConsoleRendererBase
         _welcomeData = welcome;
     }
     
-    public void Render(GameStateDto dto, int localPlayerId)
+    public void Render(UpdateDto dto, List<LogEntry> localLogs, int localPlayerId)
     {
         if (!dto.Players.ContainsKey(localPlayerId)) return;
         PlayerDto player = dto.Players[localPlayerId];
-
-        if (dto.CurrentState == "ViewingLog")
+        
+        if (player.IsViewingLog) 
         {
             if (_previousStateString != "ViewingLog")
             {
-                RenderLogScreenHelper(dto.RecentLogs);
+                var logStrings = localLogs.Select(l => $"[{l.Timestamp:HH:mm:ss}] {l.RawMessage}").ToList();
+                RenderLogScreenHelper(logStrings);
                 _previousStateString = "ViewingLog";
             }
             return;
@@ -35,17 +37,15 @@ public class ClientRenderer : ConsoleRendererBase
         DrawAttributes(player);
         DrawMap(dto);
         DrawInventory(player);
-        DrawInfoBar(dto);
-        DrawActions(dto);
+        DrawInfoBar(localLogs);
+        DrawActions();
 
         if (player.IsDead)
-        {
-            DrawDeathScreen(dto.MapHeight);
-        }
+            DrawDeathScreen(_welcomeData.MapHeight);
+        
         else if (dto.CurrentState == "GameOver")
-        {
-            DrawGameOverScreen(dto.MapHeight);
-        }
+            DrawGameOverScreen(_welcomeData.MapHeight);
+
 
         Console.SetCursorPosition(0, 0);
         _previousStateString = dto.CurrentState;
@@ -68,15 +68,15 @@ public class ClientRenderer : ConsoleRendererBase
         WriteAt($"Gold:  {player.Gold}".PadRight(20), LeftPanelX, y++);
     }
 
-    private void DrawMap(GameStateDto dto)
+    private void DrawMap(UpdateDto dto)
     {
         if (!_mapDrawn || _previousStateString == "ViewingLog")
         {
             WriteAt("+" + new string('-', _welcomeData.MapWidth) + "+", MapX - 1, MapY - 1);
-            for (int mapY = 0; mapY < _welcomeData.MapHeight; mapY++)
+            for (int mapY = 0; mapY < _welcomeData.MapHeight; mapY++) 
                 WriteAt($"|{new string(' ', _welcomeData.MapWidth)}|", MapX - 1, MapY + mapY);
             WriteAt("+" + new string('-', _welcomeData.MapWidth) + "+", MapX - 1, MapY + _welcomeData.MapHeight);
-
+            
             Console.ForegroundColor = ConsoleColor.DarkGray;
             foreach (var wall in _welcomeData.StaticWalls)
                 WriteAt(wall.Symbol, MapX + wall.X, MapY + wall.Y);
@@ -91,7 +91,7 @@ public class ClientRenderer : ConsoleRendererBase
         }
         _previousDynamicTiles.Clear();
         
-        foreach (var tile in dto.Tiles)
+        foreach (var tile in dto.DynamicTiles)
         {
             WriteAt(tile.Symbol, MapX + tile.X, MapY + tile.Y);
             _previousDynamicTiles.Add((tile.X, tile.Y));
@@ -123,27 +123,29 @@ public class ClientRenderer : ConsoleRendererBase
             WriteAt($"{i + 1}. {player.Inventory[i]}", RightPanelX, y++);
     }
 
-    private void DrawInfoBar(GameStateDto dto)
+    private void DrawInfoBar(List<LogEntry> localLogs)
     {
         int infoY = BottomPanelY - 2;
         WriteAt(new string(' ', 110), LeftPanelX, infoY);
         WriteAt(">>> RECENT LOGS:", LeftPanelX, infoY);
         for (int i = 1; i <= ShortLogCount; i++) WriteAt(new string(' ', 110), LeftPanelX, infoY + i);
 
-        for (int i = 0; i < dto.RecentLogs.Count; i++)
+        var recentLogs = localLogs.TakeLast(5).ToList();
+        for (int i = 0; i < recentLogs.Count; i++)
         {
-            string logText = dto.RecentLogs[i];
+            string logText = $"[{recentLogs[i].Timestamp:HH:mm:ss}] {recentLogs[i].RawMessage}";
             if (logText.Length > 65) logText = logText.Substring(0, 62) + "...";
             WriteAt(new string(' ', MaxRenderX), LeftPanelX, infoY + 1 + i);
             WriteAt(logText, LeftPanelX, infoY + 1 + i);
         }
     }
 
-    private void DrawActions(GameStateDto dto)
+    private void DrawActions()
     {
         int y = ActionsStartY;
-        WriteAt("=== ACTIONS ===".PadRight(30), RightPanelX, y++);
-        foreach (string msg in dto.ActionMessages)
-            WriteAt(msg.TrimEnd(',', ' ').PadRight(30), RightPanelX, y++);
+        foreach (string msg in StaticActionMessages)
+        {
+            WriteAt(msg.PadRight(30), RightPanelX, y++);
+        }
     }
 }

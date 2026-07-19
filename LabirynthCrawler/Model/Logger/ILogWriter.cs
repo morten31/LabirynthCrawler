@@ -10,7 +10,7 @@ public enum LogLevel
 
 public interface ILogWriter
 {
-    void Write(string message);
+    void Write(LogEntry entry);
     string GetLogFileName();
 }
 
@@ -28,10 +28,11 @@ public class FileLogWriter : ILogWriter
         _filePath = Path.Combine(fullDirPath, _fileName);
     }
 
-    public void Write(string message)
+    public void Write(LogEntry entry)
     {
-        File.AppendAllText(_filePath, message + Environment.NewLine);
-    }
+        string prefix = entry.TargetPlayerId.HasValue ? $"[P{entry.TargetPlayerId}] " : "[SERVER] ";
+        string logText = $"[{entry.Timestamp:HH:mm:ss}] {prefix}{entry.RawMessage}";
+        File.AppendAllText(_filePath, logText + Environment.NewLine);    }
     
     public string GetLogFileName() => _fileName;
     
@@ -39,6 +40,6 @@ public class FileLogWriter : ILogWriter
 
 public class DummyWriter : ILogWriter
 {
-    public void Write(string message) { }
+    public void Write(LogEntry entry) { }
     public string GetLogFileName() => string.Empty;
 }

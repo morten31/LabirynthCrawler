@@ -10,7 +10,7 @@ namespace LabirynthCrawler.Controller;
 
 class Program
 {
-    static void Main(string[] args)
+    static async Task Main(string[] args)
     {
         bool isServer = true;
         string ip = "127.0.0.1";
@@ -56,15 +56,15 @@ class Program
         
         if (isServer)
         {
-            GameLogger.Instance.Log($"Starting as SERVER on port {port}...");
+            GameLogger.Instance.Log($"Starting as SERVER on port {port}...", LogLevel.System);
             ServerHost server = new ServerHost(port, config);
-            server.Start();        }
+            await server.StartAsync();
+        }
         else
         {
-            GameLogger.Instance.Log($"Starting as CLIENT, connecting to {ip}:{port}...");
+            GameLogger.Instance.Log($"Starting as CLIENT, connecting to {ip}:{port}...", LogLevel.System);
             ClientHost client = new ClientHost(ip, port);
-            client.Start();
-            
+            await client.StartAsync();
         }
     }
     

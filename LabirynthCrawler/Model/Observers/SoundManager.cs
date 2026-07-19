@@ -79,25 +79,4 @@ public class SoundManager : ISoundPublisher
             }
         }
     }
-
-    private bool IsWallBetween(int startX, int startY, int endX, int endY)
-    {
-        int dx = Math.Sign(endX - startX);
-        int dy = Math.Sign(endY - startY);
-
-        int currX = startX + dx;
-        int currY = startY + dy;
-
-        while (currX != endX || currY != endY)
-        {
-            if (_map!.IsWithinBounds(currX, currY) && _map.GetTile(currX, currY).IsWall())
-            {
-                return true;
-            }
-            if (currX != endX) currX += dx;
-            if (currY != endY) currY += dy;
-        }
-
-        return false;
-    }
 }

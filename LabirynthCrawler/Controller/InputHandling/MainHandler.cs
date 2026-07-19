@@ -11,6 +11,9 @@ public class MainHandler
 {
     private BaseHandler _start = new StartEndHandler();
     private bool _shouldRun = true;
+    
+    private LocalInputManager _inputManager = new LocalInputManager();
+
     public void Initialize()
     {
         InitializeInputChain(_start);
@@ -40,7 +43,9 @@ public class MainHandler
                 string stateStr = model.CurrentState == GameModel.GameState.GameOver ? "GameOver" :
                     (p != null && p.IsViewingLog ? "ViewingLog" : "Playing");
                 
-                PlayerActionDto? action = InputParser.ParseInput(localPlayerId, stateStr);
+                var keyInfo = Console.ReadKey(true);
+                PlayerActionDto? action = _inputManager.ProcessInput(keyInfo, localPlayerId, stateStr);
+                
                 if (action != null)
                 {
                     lock (model.StateLock)

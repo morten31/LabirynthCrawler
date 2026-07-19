@@ -3,6 +3,12 @@ using LabirynthCrawler.Model.Logger;
 
 namespace LabirynthCrawler.Model.PlayerModel;
 
+public enum HandSlot
+{
+    Left,
+    Right
+}
+
 public class Inventory
 {
     private int _gold = 0;
@@ -24,37 +30,37 @@ public class Inventory
     public int GetItemCount() => _itemList.Count;
     
     public IReadOnlyList<IItem> GetItems() => _itemList;
-    public bool EquipItem(char hand, int idx)
+    public bool EquipItem(HandSlot hand, int idx)
     {
         IItem item = _itemList[idx];
         if (item.IsTwoHanded())
         {
-            UnEquipItem('L');
-            UnEquipItem('R');
+            UnEquipItem(HandSlot.Left);
+            UnEquipItem(HandSlot.Right);
             _rightHand = item;
             _leftHand = item;
             return true;
         }
         UnEquipItem(hand);
-        if (hand == 'L')
+        if (hand == HandSlot.Left)
         {
             if (_rightHand == item)
-                UnEquipItem('R');
+                UnEquipItem(HandSlot.Right);
             _leftHand = item;
         }
         else
         {
             if (_leftHand == item)
-                UnEquipItem('L');
+                UnEquipItem(HandSlot.Left);
             _rightHand = item;
         }
 
         return true;
     }
 
-    public void UnEquipItem(char hand)
+    public void UnEquipItem(HandSlot hand)
     {
-        if (hand == 'L')
+        if (hand == HandSlot.Left)
         {
             if (_leftHand != null && _leftHand.IsTwoHanded())
             {
@@ -81,11 +87,11 @@ public class Inventory
         IItem item = _itemList[idx];
         if (_leftHand == item)
         {
-            UnEquipItem('L');
+            UnEquipItem(HandSlot.Left);
         }
         else if (_rightHand == item)
         {
-            UnEquipItem('R');
+            UnEquipItem(HandSlot.Right);
         }
         
         _itemList.RemoveAt(idx);

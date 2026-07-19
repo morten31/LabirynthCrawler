@@ -18,7 +18,9 @@ public class LocalRenderer : ConsoleRendererBase
             {
                 if (_previousStateString != "ViewingLog")
                 {
-                    RenderLogScreenHelper(GameLogger.Instance.GetAllLogs(localPlayerId));
+                    var logStrings = GameLogger.Instance.GetAllLogs(localPlayerId)
+                        .Select(l => $"[{l.Timestamp:HH:mm:ss}] {l.RawMessage}").ToList();
+                    RenderLogScreenHelper(logStrings);
                     _previousStateString = "ViewingLog";
                 }
                 return;
@@ -133,8 +135,9 @@ public class LocalRenderer : ConsoleRendererBase
         var recentLogs = GameLogger.Instance.GetRecentLogs(5);
         for (int i = 0; i < recentLogs.Count; i++)
         {
-            string logText = recentLogs[i];
+            string logText = $"[{recentLogs[i].Timestamp:HH:mm:ss}] {recentLogs[i].RawMessage}";
             if (logText.Length > 65) logText = logText.Substring(0, 62) + "...";
+        
             WriteAt(new string(' ', MaxRenderX), LeftPanelX, infoY + 1 + i);
             WriteAt(logText, LeftPanelX, infoY + 1 + i);
         }
@@ -142,10 +145,10 @@ public class LocalRenderer : ConsoleRendererBase
 
     private void DrawActions(GameModel model)
     {
-        var messages = model.GetInstructionBuilder().GetCompleteMessages();
         int y = ActionsStartY;
-        WriteAt("=== ACTIONS ===".PadRight(30), RightPanelX, y++);
-        foreach (string msg in messages)
-            WriteAt(msg.TrimEnd(',', ' ').PadRight(30), RightPanelX, y++);
+        foreach (string msg in StaticActionMessages)
+        {
+            WriteAt(msg.PadRight(30), RightPanelX, y++);
+        }
     }
 }

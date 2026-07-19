@@ -24,3 +24,9 @@ public class DragonEgg : QuestItem
 {
     public DragonEgg() : base("Dragon's Egg") { }
 }
+
+public class Emerald : QuestItem { public Emerald() : base("Emerald") { } }
+public class EnderPearl : QuestItem { public EnderPearl() : base("Ender Pearl") { } }
+public class ChorusFruit : QuestItem { public ChorusFruit() : base("Chorus Fruit") { } }
+public class GoldNugget : QuestItem { public GoldNugget() : base("Gold Nugget") { } }
+public class NetherQuartz : QuestItem { public NetherQuartz() : base("Nether Quartz") { } }

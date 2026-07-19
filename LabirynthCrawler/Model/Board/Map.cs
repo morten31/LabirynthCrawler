@@ -9,6 +9,7 @@ public class Map
     public const int Width = 41;
     public const int Height = 21;
     private readonly Tile[,] _map = new Tile[Height, Width];
+    private readonly List<IEnemy> _activeEnemies = new();
 
     public void SetTileEmpty(int x, int y) => _map[y, x] = new Tile("empty");
     
@@ -38,19 +39,13 @@ public class Map
         if (!_map[y, x].IsWall())
         {
             _map[y, x].AddEnemy(enemy);
+            _activeEnemies.Add(enemy);
         }
     }
     
     public List<IEnemy> GetAllEnemies()
     {
-        List<IEnemy> all = new();
-        for (int y = 0; y < Height; y++)
-        {
-            for (int x = 0; x < Width; x++)
-            {
-                all.AddRange(_map[y, x].GetEnemies());
-            }
-        }
-        return all;
+        _activeEnemies.RemoveAll(e => e.GetHealth() <= 0);
+        return _activeEnemies.ToList();
     }
 }
