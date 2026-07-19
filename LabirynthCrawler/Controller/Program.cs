@@ -48,8 +48,7 @@ class Program
         }
         
         string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-        string projectDir = Path.GetFullPath(Path.Combine(baseDir, @"..\..\..\"));
-        string configPath = Path.Combine(projectDir, "Controller", "config.json");
+        string configPath = Path.Combine(baseDir, "config.json");
         
         GameConfig config = GameConfig.LoadConfig(configPath);
         GameLogger.Instance.SetWriter(new FileLogWriter(config.PlayerName, config.LogDirectory));

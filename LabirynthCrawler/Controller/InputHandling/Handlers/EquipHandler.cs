@@ -1,5 +1,6 @@
 ﻿using LabirynthCrawler.Model;
 using LabirynthCrawler.Model.Network;
+using LabirynthCrawler.Model.Systems;
 
 namespace LabirynthCrawler.Controller.InputHandling.Handlers;
 
@@ -9,7 +10,7 @@ public class EquipHandler : BaseHandler
     {
         if (action.ActionType == "Equip")
         {
-            model.EquipItem(action.PlayerId, action.Hand, action.TargetIndex);
+            InteractionSystem.EquipItem(model, action.PlayerId, action.Hand, action.TargetIndex);
             return true;
         }
         return base.Handle(action, model);

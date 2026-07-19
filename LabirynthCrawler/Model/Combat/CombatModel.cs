@@ -5,13 +5,13 @@ using LabirynthCrawler.Model.Items;
 
 namespace LabirynthCrawler.Model.Combat;
 
-public class CombatSystem
+public class CombatModel
 {
     private readonly Player _player;
     private readonly IEnemy _enemy;
     private readonly CombatManager _combatManager = new CombatManager();
 
-    public CombatSystem(Player player, IEnemy enemy)
+    public CombatModel(Player player, IEnemy enemy)
     {
         _player = player;
        _enemy = enemy;

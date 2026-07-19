@@ -2,6 +2,7 @@
 using LabirynthCrawler.Controller.InputHandling.Handlers;
 using LabirynthCrawler.Model;
 using LabirynthCrawler.Model.Network;
+using LabirynthCrawler.Model.Systems;
 using LabirynthCrawler.View;
 using LabirynthCrawler.View.Renderers;
 
@@ -11,6 +12,7 @@ public class MainHandler
 {
     private BaseHandler _start = new StartEndHandler();
     private bool _shouldRun = true;
+    private EnemyAISystem _enemyAi = new EnemyAISystem();
     
     private LocalInputManager _inputManager = new LocalInputManager();
 
@@ -25,6 +27,7 @@ public class MainHandler
     {
         Stopwatch tickTimer = Stopwatch.StartNew();
         int tickIntervalMs = 1000;
+        bool isViewingLog = false;
         
         while (_shouldRun)
         {
@@ -32,7 +35,7 @@ public class MainHandler
 
             if (tickTimer.ElapsedMilliseconds >= tickIntervalMs)
             {
-                model.Tick();
+                _enemyAi.Tick(model);
                 tickTimer.Restart();
                 stateChanged = true;
             }
@@ -41,25 +44,32 @@ public class MainHandler
             {
                 var p = model.GetPlayer(localPlayerId);
                 string stateStr = model.CurrentState == GameModel.GameState.GameOver ? "GameOver" :
-                    (p != null && p.IsViewingLog ? "ViewingLog" : "Playing");
+                    (isViewingLog ? "ViewingLog" : "Playing");
                 
                 var keyInfo = Console.ReadKey(true);
                 PlayerActionDto? action = _inputManager.ProcessInput(keyInfo, localPlayerId, stateStr);
                 
                 if (action != null)
                 {
-                    lock (model.StateLock)
+                    if (action.ActionType == "ToggleLog" || action.ActionType == "Escape")
                     {
-                        _shouldRun = _start.Handle(action, model);
+                        isViewingLog = !isViewingLog;
+                        stateChanged = true;
                     }
-
-                    stateChanged = true;
+                    else
+                    {
+                        lock (model.StateLock)
+                        {
+                            _shouldRun = _start.Handle(action, model);
+                        }
+                        stateChanged = true;
+                    }
                 }
             }
             
             if (stateChanged)
             {
-                renderer.Render(model, localPlayerId);
+                renderer.Render(model, localPlayerId, isViewingLog);
                 onStateChanged?.Invoke(); 
             }
             
@@ -69,7 +79,6 @@ public class MainHandler
 
     private void InitializeInputChain(BaseHandler start)
     {
-        var logHandler = new LogViewHandler();
         var moveHandler = new MoveHandler();
         var pickUpHandler = new PickUpHandler();
         var dropHandler = new DropHandler();
@@ -77,8 +86,7 @@ public class MainHandler
         var combatHandler = new CombatHandler();
         var wrongInputHandler = new WrongInputHandler();
             
-        start.SetNext(logHandler);
-        logHandler.SetNext(moveHandler);
+        start.SetNext(moveHandler);
         moveHandler.SetNext(pickUpHandler);
         pickUpHandler.SetNext(dropHandler);
         dropHandler.SetNext(equipHandler);

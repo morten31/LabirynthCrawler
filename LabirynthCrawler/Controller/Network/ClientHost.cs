@@ -17,7 +17,9 @@ public class ClientHost
     private string _currentState = "Lobby";
     private LocalInputManager _inputManager = new();
     private List<LogEntry> _localLogs = new();
-
+    private bool _isViewingLog = false;
+    private UpdateDto? _lastUpdate = null;
+    
     public ClientHost(string ip, int port)
     {
         _ip = ip;
@@ -60,15 +62,16 @@ public class ClientHost
 
                         var updateDto = JsonSerializer.Deserialize<UpdateDto>(stateJson);
                         if (updateDto != null)
-                        {
+                        {        
                             _currentState = updateDto.CurrentState;
+                            _lastUpdate = updateDto; 
                             if (updateDto.NewEvents.Any())
                             {
                                 _localLogs.AddRange(updateDto.NewEvents);
                                 if (_localLogs.Count > 50) _localLogs.RemoveRange(0, _localLogs.Count - 50);
                             }
                             
-                            _renderer.Render(updateDto, _localLogs, _myPlayerId);
+                            _renderer.Render(updateDto, _localLogs, _myPlayerId, _isViewingLog);
                         }
                     }
                 }
@@ -90,10 +93,20 @@ public class ClientHost
                         break;
                     }
 
-                    PlayerActionDto? action = _inputManager.ProcessInput(key, _myPlayerId, _currentState);
+                    PlayerActionDto? action = _inputManager
+                        .ProcessInput(key, _myPlayerId, _isViewingLog ? "ViewingLog" : _currentState);
                     
                     if (action != null)
                     {
+                        if (action.ActionType == "ToggleLog" || action.ActionType == "Escape")
+                        {
+                            _isViewingLog = !_isViewingLog;
+                            if (_lastUpdate != null)
+                            {
+                                _renderer.Render(_lastUpdate, _localLogs, _myPlayerId, _isViewingLog);
+                            }
+                            continue;
+                        }
                         actionToSend = action;
                     }
                 }

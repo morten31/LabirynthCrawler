@@ -1,5 +1,6 @@
 ﻿using LabirynthCrawler.Model;
 using LabirynthCrawler.Model.Network;
+using LabirynthCrawler.Model.Systems;
 
 namespace LabirynthCrawler.Controller.InputHandling.Handlers;
 
@@ -9,7 +10,7 @@ public class PickUpHandler : BaseHandler
     {
         if (action.ActionType == "PickUp")
         {
-            model.PickUpItem(action.PlayerId);
+            InteractionSystem.PickUpItem(model, action.PlayerId);
             return true;
         }
         return base.Handle(action, model);

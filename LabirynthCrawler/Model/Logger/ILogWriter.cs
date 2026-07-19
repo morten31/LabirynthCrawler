@@ -21,8 +21,14 @@ public class FileLogWriter : ILogWriter
     
     public FileLogWriter(string playerName, string directory)
     {
-        string fullDirPath = Path.GetFullPath(directory); 
-        if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
+        string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+        string fullDirPath = Path.GetFullPath(Path.Combine(baseDir, directory)); 
+        
+        if (!Directory.Exists(fullDirPath)) 
+        {
+            Directory.CreateDirectory(fullDirPath);
+        }
+        
         string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
         _fileName = $"log_{playerName}_{timestamp}.txt";
         _filePath = Path.Combine(fullDirPath, _fileName);

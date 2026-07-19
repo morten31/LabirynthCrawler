@@ -1,5 +1,6 @@
 ﻿using LabirynthCrawler.Model;
 using LabirynthCrawler.Model.Network;
+using LabirynthCrawler.Model.Systems;
 
 namespace LabirynthCrawler.Controller.InputHandling.Handlers;
 
@@ -9,7 +10,7 @@ public class DropHandler : BaseHandler
     {
         if (action.ActionType == "Drop")
         {
-            model.DropItem(action.PlayerId, action.TargetIndex);
+            InteractionSystem.DropItem(model, action.PlayerId, action.TargetIndex);
             return true;
         }
         return base.Handle(action, model);

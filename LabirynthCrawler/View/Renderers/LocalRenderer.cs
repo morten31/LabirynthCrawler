@@ -7,14 +7,14 @@ namespace LabirynthCrawler.View.Renderers;
 
 public class LocalRenderer : ConsoleRendererBase
 {
-    public void Render(GameModel model, int localPlayerId)
+    public void Render(GameModel model, int localPlayerId, bool isViewingLog = false)
     {
         lock (model.StateLock)
         {
             Player? player = model.GetPlayer(localPlayerId);
             if (player == null) return;
 
-            if (player.IsViewingLog) 
+            if (isViewingLog) 
             {
                 if (_previousStateString != "ViewingLog")
                 {

@@ -8,6 +8,7 @@ using LabirynthCrawler.Model;
 using LabirynthCrawler.Model.Board;
 using LabirynthCrawler.Model.Logger;
 using LabirynthCrawler.Model.Network;
+using LabirynthCrawler.Model.Systems;
 using LabirynthCrawler.View.Renderers;
 
 namespace LabirynthCrawler.Controller.Network;
@@ -19,9 +20,9 @@ public class ServerHost
     private readonly int _port;
     private readonly GameConfig _config;
     private readonly GameModel _model;
-    
     private TcpListener _listener;
     private ServerState _serverState = ServerState.Lobby;
+    private EnemyAISystem _enemyAi = new EnemyAISystem(); 
     
     private readonly Dictionary<int, StreamWriter> _clients = new();
     private readonly object _clientsLock = new object();
@@ -73,6 +74,7 @@ public class ServerHost
         
         // 2. Game Loop
         int tickRateMs = 50; 
+        bool hostViewingLog = false;
         
         while (_serverState == ServerState.Playing)
         {
@@ -84,11 +86,22 @@ public class ServerHost
             {
                 var keyInfo = Console.ReadKey(true);
             
-                var action = hostInput.ProcessInput(keyInfo, hostPlayerId, _model.CurrentState.ToString());
+                var action = hostInput.ProcessInput(keyInfo, hostPlayerId,
+                    _serverState == ServerState.GameOver ? "GameOver" : (hostViewingLog ? "ViewingLog" : "Playing"));
+                    ;
                 
                 if (action != null)
                 {
-                    actionToSend = action;
+                    if (action.ActionType == "ToggleLog" || action.ActionType == "Escape")
+                    {
+                        hostViewingLog = !hostViewingLog;
+                        stateChanged = true;
+                    }
+                    else
+                    {
+                        actionToSend = action;
+                    }
+                    
                 }
             }
             
@@ -109,7 +122,7 @@ public class ServerHost
 
             lock (_model.StateLock)
             {
-                _model.Tick();
+                _enemyAi.Tick(_model);
                 if (_model.CurrentState == GameModel.GameState.GameOver)
                 {
                     _serverState = ServerState.GameOver;
@@ -119,7 +132,7 @@ public class ServerHost
 
             await BroadcastStateAsync();
 
-            hostRenderer.Render(_model, hostPlayerId);
+            hostRenderer.Render(_model, hostPlayerId, hostViewingLog);
 
             int elapsed = (int)stopwatch.ElapsedMilliseconds;
             if (elapsed < tickRateMs)
@@ -256,8 +269,7 @@ public class ServerHost
                     Inventory = p.GetInventory().GetItems().Select(i => i.ToString()).ToList(),
                     LeftHand = hands.Item1?.ToString() ?? "Empty",
                     RightHand = hands.Item2?.ToString() ?? "Empty",
-                    IsViewingLog = p.IsViewingLog
-                };;
+                };
             }
         
             for (int y = 0; y < Map.Height; y++)

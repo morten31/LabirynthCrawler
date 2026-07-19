@@ -15,12 +15,12 @@ public class ClientRenderer : ConsoleRendererBase
         _welcomeData = welcome;
     }
     
-    public void Render(UpdateDto dto, List<LogEntry> localLogs, int localPlayerId)
+    public void Render(UpdateDto dto, List<LogEntry> localLogs, int localPlayerId, bool isViewingLog)
     {
         if (!dto.Players.ContainsKey(localPlayerId)) return;
         PlayerDto player = dto.Players[localPlayerId];
         
-        if (player.IsViewingLog) 
+        if (isViewingLog) 
         {
             if (_previousStateString != "ViewingLog")
             {
